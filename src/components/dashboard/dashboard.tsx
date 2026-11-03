@@ -4,6 +4,7 @@ import { ArrowRight, Bookmark, CalendarClock, Compass, KanbanSquare, ScanSearch,
 import Link from "next/link";
 import { useMemo } from "react";
 import { EmptyState, Section } from "@/components/app-shell/page-header";
+import { ThreeDashboardBackground } from "./three-dashboard-background";
 import { OpportunityCard } from "@/components/opportunities/opportunity-card";
 import { DeadlineText } from "@/components/shared/deadline-text";
 import { ApplicationStatusBadge, OutcomeBadge } from "@/components/shared/status-badges";
@@ -99,8 +100,10 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
   const firstName = data.profile?.fullName.split(" ")[0];
 
   return (
-    <div className="space-y-10">
-      <section className="grid gap-6 rounded-lg border border-border bg-card p-6 md:grid-cols-[1fr_auto] md:items-center md:p-7">
+    <div className="space-y-10 relative min-h-[90vh]">
+      <ThreeDashboardBackground />
+      <div className="relative z-10">
+        <section className="grid gap-6 rounded-lg border border-border bg-card p-6 md:grid-cols-[1fr_auto] md:items-center md:p-7">
         <div className="space-y-3">
           <p className="text-xs font-medium tracking-wide text-brand uppercase">Dashboard</p>
           <h1 className="text-2xl font-semibold tracking-tight md:text-[1.7rem]">
@@ -304,6 +307,7 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
           </ul>
         )}
       </Section>
+      </div>
     </div>
   );
 }
