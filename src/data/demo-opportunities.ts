@@ -1,0 +1,538 @@
+import type { Opportunity } from "@/lib/domain/types";
+
+/**
+ * DEMONSTRATION DATA ONLY.
+ * Every provider, programme and figure below is fictional. These records exist so the
+ * product can be demonstrated without a backend. They are never verified, never link to a
+ * real application form, and must always be rendered with a "Demo data" label.
+ */
+type DemoInput = Omit<
+  Opportunity,
+  | "isDemo"
+  | "status"
+  | "verificationStatus"
+  | "lastVerifiedAt"
+  | "applicationUrl"
+  | "sourceUrl"
+  | "providerUrl"
+  | "id"
+  | "isRolling"
+  | "startDate"
+  | "duration"
+> &
+  Partial<Pick<Opportunity, "isRolling" | "startDate" | "duration">>;
+
+function demo(input: DemoInput): Opportunity {
+  return {
+    isRolling: false,
+    startDate: null,
+    duration: null,
+    ...input,
+    id: `demo-${input.slug}`,
+    providerUrl: null,
+    applicationUrl: null,
+    sourceUrl: null,
+    status: "published",
+    verificationStatus: "unverified",
+    lastVerifiedAt: null,
+    isDemo: true,
+  };
+}
+
+export const DEMO_OPPORTUNITIES: Opportunity[] = [
+  // Internships
+  demo({
+    slug: "northwind-frontend-engineering-intern",
+    title: "Frontend Engineering Intern",
+    providerName: "Northwind Labs (fictional)",
+    category: "internship",
+    summary: "Six-month product engineering internship building accessible React interfaces for a logistics platform.",
+    description:
+      "Interns join a product squad shipping customer-facing features. You will pair with senior engineers, own a scoped feature end to end, write tests and take part in design reviews. The programme ends with a demo to the wider engineering team.",
+    benefits: ["Monthly stipend", "Mentorship from a senior engineer", "Pre-placement interview for strong performers"],
+    compensation: { type: "stipend", amountMin: 35000, amountMax: 35000, currency: "INR", period: "month" },
+    locationMode: "hybrid",
+    locations: ["Bengaluru, India"],
+    deadline: "2026-11-28T18:29:00.000Z",
+    startDate: "2027-01-11T00:00:00.000Z",
+    duration: "6 months",
+    skills: ["React", "TypeScript", "CSS", "Git"],
+    tags: ["web development", "software engineering", "product"],
+    publishedAt: "2026-10-21T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate", "postgraduate"], mandatory: true, statedText: "Currently enrolled in an undergraduate or postgraduate programme." },
+      { id: "r2", kind: "graduation_year", min: 2027, max: 2028, mandatory: true, statedText: "Graduating in 2027 or 2028." },
+      { id: "r3", kind: "skills", skills: ["React", "TypeScript"], match: "all", mandatory: true, statedText: "Working knowledge of React and TypeScript." },
+      { id: "r4", kind: "experience", experienceKinds: ["project", "internship", "hackathon"], minCount: 1, mandatory: false, statedText: "At least one shipped project, internship or hackathon build (preferred)." },
+      { id: "r5", kind: "other", mandatory: true, statedText: "Must be available to work from the Bengaluru office two days a week." },
+    ],
+  }),
+  demo({
+    slug: "quillbyte-data-analytics-intern",
+    title: "Data Analytics Intern",
+    providerName: "Quillbyte Analytics (fictional)",
+    category: "internship",
+    summary: "Remote analytics internship working on dashboards and experimentation for an edtech product.",
+    description:
+      "Work with the growth analytics team to clean product data, build dashboards and analyse A/B experiments. You will present one insight report to leadership at the end of the internship.",
+    benefits: ["Monthly stipend", "Certificate of completion", "Flexible hours"],
+    compensation: { type: "stipend", amountMin: 20000, amountMax: 25000, currency: "INR", period: "month" },
+    locationMode: "remote",
+    locations: ["Remote (India)"],
+    deadline: "2026-11-15T18:29:00.000Z",
+    duration: "3 months",
+    skills: ["Python", "SQL", "Statistics", "Data Visualisation"],
+    tags: ["data science", "analytics", "edtech"],
+    publishedAt: "2026-10-28T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "field_of_study", fields: ["Computer Science", "Data Science", "Mathematics", "Economics", "Information Technology"], mandatory: true, statedText: "Studying computer science, data science, mathematics, economics or IT." },
+      { id: "r2", kind: "skills", skills: ["Python", "SQL"], match: "all", mandatory: true, statedText: "Comfortable with Python and SQL." },
+      { id: "r3", kind: "min_grade", value: 7, scale: "cgpa_10", mandatory: true, statedText: "Minimum CGPA of 7.0 / 10." },
+      { id: "r4", kind: "location", countries: ["India"], mandatory: true, statedText: "Must be based in India." },
+    ],
+  }),
+  demo({
+    slug: "verdant-sustainability-ops-intern",
+    title: "Sustainability Operations Intern",
+    providerName: "Verdant Mobility (fictional)",
+    category: "internship",
+    summary: "On-site internship measuring and reducing the carbon footprint of an electric fleet.",
+    description:
+      "Support the sustainability team in collecting fleet energy data, modelling emissions and proposing operational improvements. Suitable for engineering and environmental science students.",
+    benefits: ["Monthly stipend", "Field exposure", "Letter of recommendation"],
+    compensation: { type: "stipend", amountMin: 18000, amountMax: 18000, currency: "INR", period: "month" },
+    locationMode: "onsite",
+    locations: ["Pune, India"],
+    deadline: "2026-12-20T18:29:00.000Z",
+    duration: "2 months",
+    skills: ["Excel", "Data Analysis", "Report Writing"],
+    tags: ["sustainability", "climate", "operations"],
+    publishedAt: "2026-10-15T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "field_of_study", fields: ["Mechanical Engineering", "Electrical Engineering", "Civil Engineering", "Other"], mandatory: true, statedText: "Engineering or environmental science students." },
+      { id: "r2", kind: "academic_year", min: 2, max: 4, mandatory: true, statedText: "Students in their second to fourth year." },
+      { id: "r3", kind: "skills", skills: ["Excel", "Data Analysis"], match: "any", mandatory: false, statedText: "Spreadsheet or data analysis experience preferred." },
+    ],
+  }),
+
+  // Scholarships
+  demo({
+    slug: "aster-women-in-stem-scholarship",
+    title: "Women in STEM Merit Scholarship",
+    providerName: "Aster Foundation (fictional)",
+    category: "scholarship",
+    summary: "Annual tuition support for women pursuing undergraduate STEM degrees.",
+    description:
+      "The scholarship supports tuition costs and includes an annual mentoring circle with professionals in science and engineering. Recipients are expected to maintain academic standing to renew.",
+    benefits: ["Tuition support", "Mentoring circle", "Renewable annually"],
+    compensation: { type: "funding", amountMin: 75000, amountMax: 75000, currency: "INR", period: "year" },
+    locationMode: "remote",
+    locations: ["India"],
+    deadline: "2026-12-31T18:29:00.000Z",
+    skills: [],
+    tags: ["stem", "women in tech", "merit"],
+    publishedAt: "2026-10-05T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate"], mandatory: true, statedText: "Enrolled in a full-time undergraduate degree." },
+      { id: "r2", kind: "field_of_study", fields: ["Computer Science", "Information Technology", "Data Science", "Electronics & Communication", "Electrical Engineering", "Mechanical Engineering", "Civil Engineering", "Mathematics", "Physics", "Chemistry", "Biology & Life Sciences", "Biotechnology"], mandatory: true, statedText: "Pursuing a STEM discipline." },
+      { id: "r3", kind: "min_grade", value: 75, scale: "percentage", mandatory: true, statedText: "At least 75% in the most recent academic year." },
+      { id: "r4", kind: "citizenship", countries: ["India"], mandatory: true, statedText: "Indian citizens only." },
+      { id: "r5", kind: "other", mandatory: true, statedText: "Open to students who identify as women." },
+    ],
+  }),
+  demo({
+    slug: "meridian-postgraduate-research-scholarship",
+    title: "Postgraduate Research Scholarship",
+    providerName: "Meridian Institute (fictional)",
+    category: "scholarship",
+    summary: "Funding for master's students undertaking a research thesis in data-driven public policy.",
+    description:
+      "Covers a stipend and research expenses for one academic year. Scholars present their thesis at the institute's annual policy symposium.",
+    benefits: ["Annual stipend", "Research expense grant", "Symposium presentation"],
+    compensation: { type: "funding", amountMin: 240000, amountMax: 240000, currency: "INR", period: "year" },
+    locationMode: "remote",
+    locations: ["Global"],
+    deadline: "2027-01-31T18:29:00.000Z",
+    skills: ["Research Methods", "Statistics"],
+    tags: ["policy", "research", "data science"],
+    publishedAt: "2026-10-30T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["postgraduate"], mandatory: true, statedText: "Enrolled in a master's programme." },
+      { id: "r2", kind: "min_grade", value: 3.3, scale: "cgpa_4", mandatory: true, statedText: "Minimum GPA of 3.3 / 4.0 or equivalent." },
+      { id: "r3", kind: "experience", experienceKinds: ["research"], minCount: 1, mandatory: true, statedText: "Prior research experience (thesis, paper or assistantship)." },
+      { id: "r4", kind: "age", max: 30, mandatory: true, statedText: "Applicants must be 30 or younger on the closing date." },
+    ],
+  }),
+  demo({
+    slug: "kestrel-first-generation-scholarship",
+    title: "First-Generation Learner Scholarship",
+    providerName: "Kestrel Trust (fictional)",
+    category: "scholarship",
+    summary: "Need-based support for students who are the first in their family to attend university.",
+    description:
+      "Provides a one-time grant for tuition, books and devices, plus access to a peer mentoring network. Selection considers need and motivation; a short essay is required.",
+    benefits: ["One-time grant", "Laptop allowance", "Peer mentoring"],
+    compensation: { type: "funding", amountMin: 50000, amountMax: 50000, currency: "INR", period: "total" },
+    locationMode: "remote",
+    locations: ["India"],
+    deadline: "2026-11-30T18:29:00.000Z",
+    skills: [],
+    tags: ["need-based", "first generation", "access"],
+    publishedAt: "2026-10-12T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["diploma", "undergraduate"], mandatory: true, statedText: "Enrolled in a diploma or undergraduate programme." },
+      { id: "r2", kind: "academic_year", max: 2, mandatory: true, statedText: "In the first or second year of study." },
+      { id: "r3", kind: "other", mandatory: true, statedText: "First in the immediate family to attend university (self-declared, verified at interview)." },
+      { id: "r4", kind: "other", mandatory: true, statedText: "Annual household income below the threshold published on the provider's site." },
+    ],
+  }),
+
+  // Hackathons
+  demo({
+    slug: "monsoon-build-climate-hackathon",
+    title: "Monsoon Build: Climate Resilience Hackathon",
+    providerName: "Open Civic Collective (fictional)",
+    category: "hackathon",
+    summary: "48-hour online hackathon building tools for flood preparedness and climate resilience.",
+    description:
+      "Teams of up to four build prototypes using open climate datasets. Mentors from civic tech and disaster response organisations support teams throughout the weekend.",
+    benefits: ["Prize pool", "Mentor office hours", "Incubation interviews for winners"],
+    compensation: { type: "prize", amountMin: 100000, amountMax: 100000, currency: "INR", period: "total", note: "Total prize pool" },
+    locationMode: "remote",
+    locations: ["Online"],
+    deadline: "2026-11-20T18:29:00.000Z",
+    startDate: "2026-11-27T00:00:00.000Z",
+    duration: "48 hours",
+    skills: ["Python", "JavaScript", "Data Visualisation", "APIs"],
+    tags: ["climate", "civic tech", "open data"],
+    publishedAt: "2026-10-25T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["diploma", "undergraduate", "postgraduate", "doctoral"], mandatory: true, statedText: "Open to all currently enrolled students." },
+      { id: "r2", kind: "skills", skills: ["Python", "JavaScript", "Data Visualisation"], match: "any", mandatory: false, statedText: "At least one team member should code; data skills are a plus." },
+    ],
+  }),
+  demo({
+    slug: "fintech-sprint-hackathon",
+    title: "FinTech Sprint 2026",
+    providerName: "Ledgerline (fictional)",
+    category: "hackathon",
+    summary: "Hybrid hackathon on financial inclusion, with sandbox banking APIs.",
+    description:
+      "Build products that make savings, credit and payments more accessible. Teams receive sandbox API keys and a final pitch slot in front of a judging panel.",
+    benefits: ["Cash prizes", "Sandbox API access", "Interview fast-track"],
+    compensation: { type: "prize", amountMin: 150000, amountMax: 150000, currency: "INR", period: "total", note: "Total prize pool" },
+    locationMode: "hybrid",
+    locations: ["Mumbai, India", "Online"],
+    deadline: "2026-12-05T18:29:00.000Z",
+    duration: "36 hours",
+    skills: ["JavaScript", "Node.js", "APIs", "UI Design"],
+    tags: ["fintech", "financial inclusion", "web development"],
+    publishedAt: "2026-11-01T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "graduation_year", min: 2026, max: 2029, mandatory: true, statedText: "Students graduating between 2026 and 2029." },
+      { id: "r2", kind: "location", countries: ["India"], mandatory: true, statedText: "Teams must be based in India." },
+      { id: "r3", kind: "experience", experienceKinds: ["project", "hackathon"], minCount: 1, mandatory: false, statedText: "Previous hackathon or project experience recommended." },
+    ],
+  }),
+  demo({
+    slug: "healthhack-ai-for-clinics",
+    title: "HealthHack: AI for Rural Clinics",
+    providerName: "Saanjh Health Network (fictional)",
+    category: "hackathon",
+    summary: "On-site weekend hackathon designing AI tools for primary-care clinics.",
+    description:
+      "Interdisciplinary teams of engineers, designers and health science students prototype tools for triage, inventory and patient follow-up, guided by practising clinicians.",
+    benefits: ["Prizes", "Clinician mentorship", "Travel support for finalists"],
+    compensation: { type: "prize", amountMin: 75000, amountMax: 75000, currency: "INR", period: "total", note: "Total prize pool" },
+    locationMode: "onsite",
+    locations: ["Hyderabad, India"],
+    deadline: "2027-01-10T18:29:00.000Z",
+    duration: "2 days",
+    skills: ["Machine Learning", "Python", "UI Design"],
+    tags: ["healthcare", "ai", "social impact"],
+    publishedAt: "2026-10-18T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate", "postgraduate"], mandatory: true, statedText: "Undergraduate or postgraduate students." },
+      { id: "r2", kind: "age", min: 18, mandatory: true, statedText: "Participants must be 18 or older." },
+      { id: "r3", kind: "skills", skills: ["Machine Learning", "Python", "UI Design"], match: "any", mandatory: true, statedText: "Experience in ML, Python or product design." },
+    ],
+  }),
+
+  // Fellowships
+  demo({
+    slug: "civic-tech-fellowship",
+    title: "Civic Technology Fellowship",
+    providerName: "Public Interest Tech Forum (fictional)",
+    category: "fellowship",
+    summary: "Ten-month fellowship placing recent graduates in government digital teams.",
+    description:
+      "Fellows work on digital public services alongside government partners, with a structured curriculum on policy, design and ethics. The cohort meets monthly for peer learning.",
+    benefits: ["Monthly fellowship grant", "Policy curriculum", "Alumni network"],
+    compensation: { type: "stipend", amountMin: 60000, amountMax: 60000, currency: "INR", period: "month" },
+    locationMode: "onsite",
+    locations: ["New Delhi, India"],
+    deadline: "2027-02-15T18:29:00.000Z",
+    duration: "10 months",
+    skills: ["Product Management", "Research Methods", "Communication"],
+    tags: ["policy", "civic tech", "public service"],
+    publishedAt: "2026-10-08T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "graduation_year", max: 2027, mandatory: true, statedText: "Graduating by 2027 or already graduated." },
+      { id: "r2", kind: "experience", experienceKinds: ["internship", "work", "volunteer", "project"], minCount: 2, mandatory: true, statedText: "At least two relevant internships, jobs, volunteer roles or projects." },
+      { id: "r3", kind: "citizenship", countries: ["India"], mandatory: true, statedText: "Indian citizens only." },
+    ],
+  }),
+  demo({
+    slug: "open-source-maintainers-fellowship",
+    title: "Open Source Maintainers Fellowship",
+    providerName: "Commons Code Fund (fictional)",
+    category: "fellowship",
+    summary: "Part-time remote fellowship funding students to maintain open-source projects.",
+    description:
+      "Fellows spend 15 hours a week on an approved open-source project with guidance from an experienced maintainer. Includes a monthly community call and a final showcase.",
+    benefits: ["Monthly grant", "Maintainer mentorship", "Conference ticket"],
+    compensation: { type: "stipend", amountMin: 400, amountMax: 400, currency: "USD", period: "month" },
+    locationMode: "remote",
+    locations: ["Global"],
+    deadline: "2026-12-12T18:29:00.000Z",
+    duration: "12 weeks",
+    skills: ["Git", "Open Source", "Python", "JavaScript"],
+    tags: ["open source", "software engineering", "community"],
+    publishedAt: "2026-10-27T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate", "postgraduate", "doctoral"], mandatory: true, statedText: "Currently enrolled university students." },
+      { id: "r2", kind: "skills", skills: ["Git", "Open Source"], match: "all", mandatory: true, statedText: "Familiarity with Git and open-source contribution workflows." },
+      { id: "r3", kind: "experience", experienceKinds: ["project"], minCount: 1, mandatory: true, statedText: "At least one public code repository you have contributed to." },
+    ],
+  }),
+  demo({
+    slug: "young-designers-fellowship",
+    title: "Young Designers Fellowship",
+    providerName: "Studio Halide (fictional)",
+    category: "fellowship",
+    summary: "Design fellowship for students building a portfolio in product and service design.",
+    description:
+      "A cohort-based programme with weekly critiques, a client brief and portfolio reviews. Open to design and non-design students who can show visual or UX work.",
+    benefits: ["Fellowship grant", "Portfolio reviews", "Studio residency week"],
+    compensation: { type: "stipend", amountMin: 15000, amountMax: 15000, currency: "INR", period: "month" },
+    locationMode: "hybrid",
+    locations: ["Ahmedabad, India", "Online"],
+    deadline: "2026-12-01T18:29:00.000Z",
+    duration: "4 months",
+    skills: ["Figma", "UI Design", "User Research"],
+    tags: ["design", "ux", "product"],
+    publishedAt: "2026-10-20T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "skills", skills: ["Figma", "UI Design"], match: "any", mandatory: true, statedText: "A portfolio showing Figma or UI design work." },
+      { id: "r2", kind: "academic_year", min: 2, mandatory: true, statedText: "Second year or above." },
+      { id: "r3", kind: "other", mandatory: true, statedText: "Portfolio link required with application." },
+    ],
+  }),
+
+  // Research programmes
+  demo({
+    slug: "summer-research-in-machine-learning",
+    title: "Summer Research Programme in Machine Learning",
+    providerName: "Institute for Applied Computation (fictional)",
+    category: "research",
+    summary: "Eight-week supervised research placement in ML labs for undergraduates.",
+    description:
+      "Students are matched with a faculty mentor and a lab project in areas such as NLP, computer vision or responsible AI. The programme ends with a poster session.",
+    benefits: ["Stipend", "Campus accommodation", "Faculty mentor"],
+    compensation: { type: "stipend", amountMin: 25000, amountMax: 25000, currency: "INR", period: "month" },
+    locationMode: "onsite",
+    locations: ["Chennai, India"],
+    deadline: "2027-01-15T18:29:00.000Z",
+    startDate: "2027-05-15T00:00:00.000Z",
+    duration: "8 weeks",
+    skills: ["Python", "Machine Learning", "Linear Algebra"],
+    tags: ["ai", "research", "machine learning"],
+    publishedAt: "2026-10-29T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate"], mandatory: true, statedText: "Undergraduate students only." },
+      { id: "r2", kind: "academic_year", min: 2, max: 3, mandatory: true, statedText: "Currently in second or third year." },
+      { id: "r3", kind: "min_grade", value: 8, scale: "cgpa_10", mandatory: true, statedText: "Minimum CGPA of 8.0 / 10." },
+      { id: "r4", kind: "skills", skills: ["Python", "Machine Learning"], match: "all", mandatory: true, statedText: "Programming in Python and an introductory ML course or project." },
+      { id: "r5", kind: "experience", experienceKinds: ["research", "project"], minCount: 1, mandatory: false, statedText: "Prior research or ML project preferred." },
+    ],
+  }),
+  demo({
+    slug: "biodiversity-field-research-assistantship",
+    title: "Biodiversity Field Research Assistantship",
+    providerName: "Western Ghats Ecology Lab (fictional)",
+    category: "research",
+    summary: "Field and lab assistantship surveying pollinator populations.",
+    description:
+      "Assist researchers with transect surveys, specimen cataloguing and data entry. Suitable for life sciences students comfortable with fieldwork.",
+    benefits: ["Stipend", "Field accommodation", "Co-authorship opportunity"],
+    compensation: { type: "stipend", amountMin: 15000, amountMax: 15000, currency: "INR", period: "month" },
+    locationMode: "onsite",
+    locations: ["Karnataka, India"],
+    deadline: "2026-12-15T18:29:00.000Z",
+    duration: "3 months",
+    skills: ["Field Research", "R", "Data Analysis"],
+    tags: ["ecology", "biology", "research"],
+    publishedAt: "2026-10-10T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "field_of_study", fields: ["Biology & Life Sciences", "Biotechnology"], mandatory: true, statedText: "Life sciences or biotechnology students." },
+      { id: "r2", kind: "degree_level", levels: ["undergraduate", "postgraduate"], mandatory: true, statedText: "Undergraduate or postgraduate students." },
+      { id: "r3", kind: "skills", skills: ["R", "Data Analysis"], match: "any", mandatory: false, statedText: "Basic R or data analysis skills preferred." },
+    ],
+  }),
+  demo({
+    slug: "quantum-computing-research-internship",
+    title: "Quantum Computing Research Internship",
+    providerName: "Helix Quantum Lab (fictional)",
+    category: "research",
+    summary: "Remote research internship on quantum algorithms for optimisation.",
+    description:
+      "Work with researchers on simulating variational quantum algorithms. Interns write a technical report and may contribute to an open-source simulation library.",
+    benefits: ["Stipend", "Research mentorship", "Publication support"],
+    compensation: { type: "stipend", amountMin: 30000, amountMax: 30000, currency: "INR", period: "month" },
+    locationMode: "remote",
+    locations: ["Global"],
+    deadline: "2026-10-20T18:29:00.000Z",
+    duration: "12 weeks",
+    skills: ["Python", "Linear Algebra", "Quantum Computing"],
+    tags: ["quantum", "physics", "research"],
+    publishedAt: "2026-09-15T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "field_of_study", fields: ["Physics", "Computer Science", "Mathematics"], mandatory: true, statedText: "Physics, computer science or mathematics students." },
+      { id: "r2", kind: "skills", skills: ["Python", "Linear Algebra"], match: "all", mandatory: true, statedText: "Python and strong linear algebra." },
+    ],
+  }),
+
+  // Grants & competitions
+  demo({
+    slug: "student-innovation-seed-grant",
+    title: "Student Innovation Seed Grant",
+    providerName: "Brightpath Innovation Fund (fictional)",
+    category: "grant_competition",
+    summary: "Seed funding for student teams turning a prototype into a pilot.",
+    description:
+      "Teams submit a two-page proposal and a prototype demo. Shortlisted teams pitch to a panel; winners receive funding and three months of mentoring.",
+    benefits: ["Seed grant", "Mentoring", "Pilot partner introductions"],
+    compensation: { type: "funding", amountMin: 200000, amountMax: 500000, currency: "INR", period: "total" },
+    locationMode: "remote",
+    locations: ["India"],
+    deadline: "2027-01-20T18:29:00.000Z",
+    skills: ["Product Management", "Pitching"],
+    tags: ["entrepreneurship", "startups", "social impact"],
+    publishedAt: "2026-10-31T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate", "postgraduate", "doctoral"], mandatory: true, statedText: "At least one team member must be an enrolled student." },
+      { id: "r2", kind: "experience", experienceKinds: ["project", "hackathon"], minCount: 1, mandatory: true, statedText: "A working prototype or MVP." },
+      { id: "r3", kind: "location", countries: ["India"], mandatory: true, statedText: "Teams registered in India." },
+    ],
+  }),
+  demo({
+    slug: "national-case-study-challenge",
+    title: "National Case Study Challenge",
+    providerName: "Crescent Business Review (fictional)",
+    category: "grant_competition",
+    summary: "Team strategy competition solving a real-world business case.",
+    description:
+      "Teams of three analyse a case and submit a strategy deck. Finalists present live to a judging panel of industry professionals.",
+    benefits: ["Cash prizes", "Certificates", "Internship interviews"],
+    compensation: { type: "prize", amountMin: 60000, amountMax: 60000, currency: "INR", period: "total", note: "Total prize pool" },
+    locationMode: "hybrid",
+    locations: ["Online", "Kolkata, India"],
+    deadline: "2026-11-25T18:29:00.000Z",
+    skills: ["Business Strategy", "Communication", "Excel"],
+    tags: ["business", "strategy", "consulting"],
+    publishedAt: "2026-10-22T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate", "postgraduate"], mandatory: true, statedText: "Undergraduate and postgraduate students." },
+      { id: "r2", kind: "other", mandatory: true, statedText: "Teams of exactly three students from the same institution." },
+    ],
+  }),
+  demo({
+    slug: "open-hardware-design-prize",
+    title: "Open Hardware Design Prize",
+    providerName: "Makers Guild (fictional)",
+    category: "grant_competition",
+    summary: "Competition for open-source hardware projects addressing accessibility.",
+    description:
+      "Submit documented open-hardware designs that improve accessibility for people with disabilities. Judged on impact, documentation and reproducibility.",
+    benefits: ["Prize money", "Component kits", "Exhibition slot"],
+    compensation: { type: "prize", amountMin: 80000, amountMax: 80000, currency: "INR", period: "total" },
+    locationMode: "remote",
+    locations: ["Global"],
+    deadline: "2027-02-28T18:29:00.000Z",
+    skills: ["Embedded Systems", "CAD", "Arduino"],
+    tags: ["hardware", "accessibility", "open source"],
+    publishedAt: "2026-10-03T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "skills", skills: ["Embedded Systems", "CAD", "Arduino"], match: "any", mandatory: true, statedText: "Hardware design or embedded systems skills." },
+      { id: "r2", kind: "experience", experienceKinds: ["project"], minCount: 1, mandatory: true, statedText: "A documented hardware prototype." },
+    ],
+  }),
+
+  // Workshops & programmes
+  demo({
+    slug: "cloud-foundations-bootcamp",
+    title: "Cloud Foundations Bootcamp",
+    providerName: "Stratus Academy (fictional)",
+    category: "workshop_program",
+    summary: "Free four-week online bootcamp on cloud fundamentals with hands-on labs.",
+    description:
+      "Live sessions cover compute, storage, networking and serverless basics, with weekly labs and a capstone deployment. Suitable for beginners.",
+    benefits: ["Free tuition", "Hands-on labs", "Certificate of completion"],
+    compensation: { type: "none", note: "Free programme" },
+    locationMode: "remote",
+    locations: ["Online"],
+    deadline: "2026-11-18T18:29:00.000Z",
+    duration: "4 weeks",
+    skills: ["Cloud Computing", "Linux"],
+    tags: ["cloud", "devops", "beginner friendly"],
+    publishedAt: "2026-11-02T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["diploma", "undergraduate", "postgraduate"], mandatory: true, statedText: "Open to diploma, undergraduate and postgraduate students." },
+    ],
+  }),
+  demo({
+    slug: "research-writing-workshop",
+    title: "Academic Research Writing Workshop",
+    providerName: "Scholars' Commons (fictional)",
+    category: "workshop_program",
+    summary: "Two-day workshop on writing research papers and grant proposals.",
+    description:
+      "Hands-on sessions on structuring papers, literature reviews, citation practice and responding to reviewers. Participants bring a draft for feedback.",
+    benefits: ["Draft feedback", "Writing templates", "Certificate"],
+    compensation: { type: "none", note: "Free for selected participants" },
+    locationMode: "hybrid",
+    locations: ["Bengaluru, India", "Online"],
+    deadline: null,
+    isRolling: true,
+    duration: "2 days",
+    skills: ["Academic Writing", "Research Methods"],
+    tags: ["research", "writing", "academia"],
+    publishedAt: "2026-10-01T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "degree_level", levels: ["undergraduate", "postgraduate", "doctoral"], mandatory: true, statedText: "University students at any level." },
+      { id: "r2", kind: "experience", experienceKinds: ["research"], minCount: 1, mandatory: false, statedText: "A draft paper or ongoing research project is recommended." },
+    ],
+  }),
+  demo({
+    slug: "product-management-launchpad",
+    title: "Product Management Launchpad",
+    providerName: "Orbit PM School (fictional)",
+    category: "workshop_program",
+    summary: "Six-week evening programme introducing product management through a live project.",
+    description:
+      "Learn discovery, prioritisation and metrics by working on a real product brief with a mentor. Ends with a product review presentation.",
+    benefits: ["Mentor", "Live project", "Portfolio case study"],
+    compensation: { type: "none", note: "Scholarship seats available" },
+    locationMode: "remote",
+    locations: ["Online"],
+    deadline: "2026-12-08T18:29:00.000Z",
+    duration: "6 weeks",
+    skills: ["Product Management", "Communication", "User Research"],
+    tags: ["product", "career development", "business"],
+    publishedAt: "2026-10-24T09:00:00.000Z",
+    requirements: [
+      { id: "r1", kind: "academic_year", min: 2, mandatory: true, statedText: "Second year or above." },
+      { id: "r2", kind: "graduation_year", max: 2028, mandatory: false, statedText: "Priority to students graduating by 2028." },
+    ],
+  }),
+];
