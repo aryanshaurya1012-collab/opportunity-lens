@@ -109,7 +109,7 @@ export default async function LandingPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-foreground/90 truncate">{preview.title}</p>
-                        <p className="text-xs text-muted-foreground/70 truncate">{preview.provider}</p>
+                        <p className="text-xs text-muted-foreground/70 truncate">{preview.providerName}</p>
                       </div>
                       <span className="rounded-full bg-mint/20 px-2.5 py-1 text-xs font-medium text-mint/80">
                         {previewResult.outcome}
@@ -117,11 +117,11 @@ export default async function LandingPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-lg bg-background/50 p-3 text-center">
-                        <p className="text-xl font-bold text-foreground/90">{previewResult.meetsCount}</p>
+                        <p className="text-xl font-bold text-foreground/90">{previewResult.counts.met}</p>
                         <p className="text-xs text-muted-foreground/70">Meets</p>
                       </div>
                       <div className="rounded-lg bg-background/50 p-3 text-center">
-                        <p className="text-xl font-bold text-foreground/90">{previewResult.needsReviewCount}</p>
+                        <p className="text-xl font-bold text-foreground/90">{previewResult.counts.not_met}</p>
                         <p className="text-xs text-muted-foreground/70">Review</p>
                       </div>
                     </div>
