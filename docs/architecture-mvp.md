@@ -51,8 +51,9 @@ synced to the URL (`?q=&category=&mode=&deadline=&paid=&closed=&sort=`).
 
 ## AI
 
-- **Rules engine** (on this site): authoritative, explainable.
-- **Amazon PartyRock** (`/app/ai-analysis`): an external, public PartyRock app opened in a new tab via
+- **Rules engine** (on this site): authoritative, explainable requirement validation.
+- **In-App AI Strategy Studio** (`/app/ai-analysis`): client-side generative synthesis providing fit scoring, resume impact statements, and targeted interview prompts.
+- **Amazon PartyRock** (`/app/ai-analysis`): an optional external, public PartyRock app opened in a new tab via
   `NEXT_PUBLIC_PARTYROCK_FLOW_URL`. No data is transferred automatically; the student can copy a
   non-sensitive text summary of their profile and an opportunity, generated in the browser, and paste it in.
   No undocumented PartyRock APIs are used.

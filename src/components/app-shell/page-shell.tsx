@@ -29,9 +29,18 @@ export function PageShell({
           : null;
 
   return (
-    <div className={cn("relative min-h-svh", className)}>
-      {BackgroundComponent && <BackgroundComponent />}
-      <div className="relative z-10">{children}</div>
+    <div className={cn("relative min-h-svh w-full", className)}>
+      {BackgroundComponent && (
+        <div
+          className="pointer-events-none absolute inset-0 overflow-hidden select-none z-0"
+          aria-hidden="true"
+        >
+          <div className="sticky top-0 h-svh w-full overflow-hidden">
+            <BackgroundComponent />
+          </div>
+        </div>
+      )}
+      <div className="relative z-10 w-full">{children}</div>
     </div>
   );
 }

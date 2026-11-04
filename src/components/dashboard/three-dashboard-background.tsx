@@ -15,46 +15,59 @@ export function ThreeDashboardBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x070d1a, 0.035);
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-    const camera = new THREE.PerspectiveCamera(
-      60,
-      canvas.clientWidth / canvas.clientHeight,
-      0.1,
-      1000,
-    );
+    const isDark = document.documentElement.classList.contains("dark");
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+    } catch {
+      return;
+    }
+
+    const width = canvas.clientWidth || window.innerWidth;
+    const height = canvas.clientHeight || window.innerHeight;
+
+    const scene = new THREE.Scene();
+    if (isDark) {
+      scene.fog = new THREE.FogExp2(0x070d1a, 0.025);
+    }
+
+    const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
     camera.position.z = 12;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setSize(width, height, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.4 : 0.8);
     scene.add(ambientLight);
 
-    const accentLight = new THREE.PointLight(0x22d3ee, 1, 50);
+    const accentLight = new THREE.PointLight(isDark ? 0x22d3ee : 0x0d9488, 1, 50);
     accentLight.position.set(5, 5, 5);
     scene.add(accentLight);
 
-    const accentLight2 = new THREE.PointLight(0x2dd4bf, 0.8, 50);
+    const accentLight2 = new THREE.PointLight(isDark ? 0x2dd4bf : 0x0284c7, 0.8, 50);
     accentLight2.position.set(-5, -5, 5);
     scene.add(accentLight2);
 
-    const particleCount = 90;
+    const particleCount = 85;
     const particles: Particle[] = [];
     const geometry = new THREE.SphereGeometry(0.07, 8, 8);
     const material = new THREE.MeshStandardMaterial({
-      color: 0x22d3ee,
-      emissive: 0x0d9488,
+      color: isDark ? 0x22d3ee : 0x0d9488,
+      emissive: isDark ? 0x0d9488 : 0x0284c7,
       emissiveIntensity: 0.5,
       transparent: true,
-      opacity: 0.8,
+      opacity: isDark ? 0.8 : 0.6,
     });
 
     for (let i = 0; i < particleCount; i++) {
@@ -77,12 +90,27 @@ export function ThreeDashboardBackground() {
 
     const lineGeometry = new THREE.BufferGeometry();
     const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0x2dd4bf,
+      color: isDark ? 0x2dd4bf : 0x0d9488,
       transparent: true,
-      opacity: 0.15,
+      opacity: isDark ? 0.15 : 0.12,
     });
     const lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
     scene.add(lineMesh);
+
+    renderer.render(scene, camera);
+
+    if (prefersReducedMotion) {
+      return () => {
+        renderer.dispose();
+        scene.remove(accentLight, accentLight2, ambientLight, lineMesh);
+        for (const p of particles) {
+          p.mesh.geometry.dispose();
+        }
+        material.dispose();
+        lineGeometry.dispose();
+        lineMaterial.dispose();
+      };
+    }
 
     let mouseX = 0;
     let mouseY = 0;
@@ -102,6 +130,18 @@ export function ThreeDashboardBackground() {
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: newWidth, height: newHeight } = entry.contentRect;
+        if (newWidth > 0 && newHeight > 0) {
+          camera.aspect = newWidth / newHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(newWidth, newHeight, false);
+        }
+      }
+    });
+    resizeObserver.observe(canvas);
 
     const clock = new THREE.Clock();
     let animationFrameId: number;
@@ -191,24 +231,14 @@ export function ThreeDashboardBackground() {
 
     animate();
 
-    const handleResize = () => {
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    };
-
-    window.addEventListener("resize", handleResize);
-
     return () => {
       cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
 
       renderer.dispose();
-      scene.remove(accentLight);
-      scene.remove(accentLight2);
-      scene.remove(ambientLight);
+      scene.remove(accentLight, accentLight2, ambientLight, lineMesh);
       for (const p of particles) {
         p.mesh.geometry.dispose();
       }
@@ -221,7 +251,7 @@ export function ThreeDashboardBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full z-0 pointer-events-none"
+      className="h-full w-full pointer-events-none block"
       aria-hidden="true"
     />
   );

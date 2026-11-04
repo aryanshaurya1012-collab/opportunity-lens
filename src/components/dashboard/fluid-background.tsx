@@ -15,28 +15,36 @@ export function FluidBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     const isDark = document.documentElement.classList.contains("dark");
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+    } catch {
+      return;
+    }
+
+    const width = canvas.clientWidth || window.innerWidth;
+    const height = canvas.clientHeight || window.innerHeight;
 
     const scene = new THREE.Scene();
     if (isDark) {
-      scene.fog = new THREE.FogExp2(0x0b1322, 0.015);
+      scene.fog = new THREE.FogExp2(0x070d1a, 0.012);
     }
 
-    const camera = new THREE.PerspectiveCamera(
-      55,
-      canvas.clientWidth / canvas.clientHeight,
-      0.1,
-      1000,
-    );
+    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 1000);
     camera.position.z = 4.2;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setSize(width, height, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
@@ -90,6 +98,19 @@ export function FluidBackground() {
       lineGroups.push(line);
     }
 
+    renderer.render(scene, camera);
+
+    if (prefersReducedMotion) {
+      return () => {
+        renderer.dispose();
+        scene.remove(ambientLight, accentLight, accentLight2, ...lineGroups);
+        for (const line of lineGroups) {
+          line.geometry.dispose();
+          (line.material as THREE.Material).dispose();
+        }
+      };
+    }
+
     let mouseX = 0;
     let mouseY = 0;
     const handleMouseMove = (event: MouseEvent) => {
@@ -108,6 +129,18 @@ export function FluidBackground() {
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: newWidth, height: newHeight } = entry.contentRect;
+        if (newWidth > 0 && newHeight > 0) {
+          camera.aspect = newWidth / newHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(newWidth, newHeight, false);
+        }
+      }
+    });
+    resizeObserver.observe(canvas);
 
     const clock = new THREE.Clock();
     let animationFrameId: number;
@@ -171,19 +204,11 @@ export function FluidBackground() {
 
     animate();
 
-    const handleResize = () => {
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    };
-
-    window.addEventListener("resize", handleResize);
-
     return () => {
       cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
 
       renderer.dispose();
       scene.remove(ambientLight, accentLight, accentLight2, ...lineGroups);
@@ -197,7 +222,7 @@ export function FluidBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full z-0 pointer-events-none"
+      className="h-full w-full pointer-events-none block"
       aria-hidden="true"
     />
   );
