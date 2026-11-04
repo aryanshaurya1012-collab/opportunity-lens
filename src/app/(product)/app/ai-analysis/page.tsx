@@ -1,5 +1,6 @@
 import { ArrowUpRight, Cpu, ExternalLink, Info, ShieldCheck, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
+import { PageShell } from "@/components/app-shell/page-shell";
 import { PageContainer, PageHeader } from "@/components/app-shell/page-header";
 import { CopyContextPanel } from "@/components/ai/copy-context-panel";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,9 @@ export default async function AiAnalysisPage() {
   const opportunities = await getOpportunityRepository().listPublished();
 
   return (
-    <PageContainer>
-      <PageHeader
+    <PageShell background="space">
+      <PageContainer>
+        <PageHeader
         eyebrow="Generative AI"
         title="AI analysis with Amazon PartyRock"
         description="Our PartyRock app is the generative AI prototype of OpportunityLens. Use it to get AI-written analysis of an opportunity against your background, alongside the deterministic checks on this site."
@@ -135,6 +137,7 @@ export default async function AiAnalysisPage() {
           </div>
         </aside>
       </div>
-    </PageContainer>
+      </PageContainer>
+    </PageShell>
   );
 }

@@ -15,11 +15,26 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-4 border-b border-border pb-6 md:flex-row md:items-end md:justify-between", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-4 border-b border-border/50 pb-6 md:flex-row md:items-end md:justify-between bg-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-6",
+        className,
+      )}
+    >
       <div className="min-w-0 space-y-1.5">
-        {eyebrow && <p className="text-xs font-medium tracking-wide text-brand uppercase">{eyebrow}</p>}
-        <h1 className="text-2xl font-semibold tracking-tight md:text-[1.7rem]">{title}</h1>
-        {description && <div className="max-w-2xl text-sm text-muted-foreground">{description}</div>}
+        {eyebrow && (
+          <p className="text-xs font-medium tracking-wide text-brand/90 uppercase">
+            {eyebrow}
+          </p>
+        )}
+        <h1 className="text-2xl font-semibold tracking-tight md:text-[1.7rem] text-gradient">
+          {title}
+        </h1>
+        {description && (
+          <div className="max-w-2xl text-sm text-muted-foreground/90">
+            {description}
+          </div>
+        )}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
