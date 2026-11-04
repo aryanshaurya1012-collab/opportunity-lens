@@ -15,8 +15,12 @@ export function FluidBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const isDark = document.documentElement.classList.contains("dark");
+
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050a15, 0.04);
+    if (isDark) {
+      scene.fog = new THREE.FogExp2(0x0b1322, 0.015);
+    }
 
     const camera = new THREE.PerspectiveCamera(
       55,
@@ -34,17 +38,18 @@ export function FluidBackground() {
     });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
     // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.4 : 0.8);
     scene.add(ambientLight);
 
-    // Subtle accent light
-    const accentLight = new THREE.PointLight(0x22d3ee, 0.6, 25);
+    // Accent lights
+    const accentLight = new THREE.PointLight(isDark ? 0x22d3ee : 0x0d9488, isDark ? 0.6 : 0.9, 25);
     accentLight.position.set(2, 2, 4);
     scene.add(accentLight);
 
-    const accentLight2 = new THREE.PointLight(0x2dd4bf, 0.4, 25);
+    const accentLight2 = new THREE.PointLight(isDark ? 0x2dd4bf : 0x0284c7, isDark ? 0.4 : 0.7, 25);
     accentLight2.position.set(-2, -2, 3);
     scene.add(accentLight2);
 
@@ -72,9 +77,11 @@ export function FluidBackground() {
 
       geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
       const material = new THREE.LineBasicMaterial({
-        color: l % 2 === 0 ? 0x2dd4bf : 0x22d3ee,
+        color: isDark
+          ? (l % 2 === 0 ? 0x2dd4bf : 0x22d3ee)
+          : (l % 2 === 0 ? 0x0d9488 : 0x0284c7),
         transparent: true,
-        opacity: 0.22 + (l / lineCount) * 0.12,
+        opacity: isDark ? 0.22 + (l / lineCount) * 0.12 : 0.18 + (l / lineCount) * 0.08,
       });
       const line = new THREE.Line(geometry, material);
       const userData: LineUserData = { velocities, phases };

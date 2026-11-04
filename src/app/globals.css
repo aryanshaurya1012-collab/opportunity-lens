@@ -60,57 +60,106 @@
 }
 
 /* ============================================================
-  OpportunityLens — Immersive SaaS Design System
-  Dark ink backdrop, mint/teal accents, glassmorphic surfaces,
-  Three.js WebGL backgrounds, scroll-reactive motion.
+  OpportunityLens Theme System
+  - Marketing (:root): Clean, bright, luminous surface, deep navy typography,
+    vibrant teal/emerald accents, crisp high-contrast cards.
+  - Product (.dark): Rich midnight-navy, vibrant luminous accents,
+    high-contrast readable typography.
 ============================================================ */
 
 :root {
   --radius: 0.6rem;
-  --background: #050a15;
-  --foreground: #e6ebf2;
-  --card: rgba(12, 21, 39, 0.6);
-  --card-foreground: #e6ebf2;
-  --popover: rgba(14, 24, 44, 0.8);
-  --popover-foreground: #e6ebf2;
+  --background: #f8fafc;
+  --foreground: #091e3a;
+  --card: #ffffff;
+  --card-foreground: #091e3a;
+  --popover: #ffffff;
+  --popover-foreground: #091e3a;
+  --primary: #0d9488;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #091e3a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --accent: #f0fdfa;
+  --accent-foreground: #0f766e;
+  --destructive: #ef4444;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #0d9488;
+  --brand: #0d9488;
+  --brand-foreground: #ffffff;
+  --brand-soft: #ccfbf1;
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --warning: #d97706;
+  --warning-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --chart-1: #0d9488;
+  --chart-2: #0284c7;
+  --chart-3: #6366f1;
+  --chart-4: #64748b;
+  --chart-5: #cbd5e1;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #091e3a;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #091e3a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #0d9488;
+
+  --gradient-mint: linear-gradient(135deg, #0d9488 0%, #0284c7 100%);
+  --gradient-deep: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+}
+
+.dark {
+  --background: #0b1322;
+  --foreground: #f1f5f9;
+  --card: #111d33;
+  --card-foreground: #f1f5f9;
+  --popover: #132038;
+  --popover-foreground: #f1f5f9;
   --primary: #2dd4bf;
-  --primary-foreground: #03201c;
-  --secondary: #101a2e;
-  --secondary-foreground: #e6ebf2;
-  --muted: #0c1527;
-  --muted-foreground: #93a0b6;
-  --accent: #15233d;
-  --accent-foreground: #e6ebf2;
+  --primary-foreground: #042f2e;
+  --secondary: #17243c;
+  --secondary-foreground: #f1f5f9;
+  --muted: #152238;
+  --muted-foreground: #94a3b8;
+  --accent: #172b49;
+  --accent-foreground: #5eead4;
   --destructive: #f87171;
-  --border: rgb(148 163 184 / 0.18);
-  --input: rgb(148 163 184 / 0.25);
+  --border: rgba(148, 163, 184, 0.2);
+  --input: rgba(148, 163, 184, 0.28);
   --ring: #2dd4bf;
   --brand: #2dd4bf;
-  --brand-foreground: #03201c;
-  --brand-soft: rgba(45, 212, 191, 0.1);
+  --brand-foreground: #042f2e;
+  --brand-soft: rgba(45, 212, 191, 0.15);
   --success: #4ade80;
-  --success-soft: rgba(74, 222, 128, 0.12);
+  --success-soft: rgba(74, 222, 128, 0.15);
   --warning: #fbbf24;
-  --warning-soft: rgba(251, 191, 36, 0.12);
+  --warning-soft: rgba(251, 191, 36, 0.15);
   --danger: #f87171;
-  --danger-soft: rgba(248, 113, 113, 0.12);
+  --danger-soft: rgba(248, 113, 113, 0.15);
   --chart-1: #2dd4bf;
-  --chart-2: #22d3ee;
-  --chart-3: #93a0b6;
-  --chart-4: #475569;
-  --chart-5: #1e293b;
-  --sidebar: rgba(5, 10, 21, 0.85);
-  --sidebar-foreground: #c9d2e0;
+  --chart-2: #38bdf8;
+  --chart-3: #818cf8;
+  --chart-4: #94a3b8;
+  --chart-5: #334155;
+  --sidebar: #0e1728;
+  --sidebar-foreground: #e2e8f0;
   --sidebar-primary: #2dd4bf;
-  --sidebar-primary-foreground: #03201c;
-  --sidebar-accent: rgba(16, 26, 46, 0.6);
-  --sidebar-accent-foreground: #e6ebf2;
-  --sidebar-border: rgb(148 163 184 / 0.12);
+  --sidebar-primary-foreground: #042f2e;
+  --sidebar-accent: #162238;
+  --sidebar-accent-foreground: #f8fafc;
+  --sidebar-border: rgba(148, 163, 184, 0.15);
   --sidebar-ring: #2dd4bf;
 
-  --gradient-mint: linear-gradient(135deg, #22d3ee 0%, #2dd4bf 100%);
-  --gradient-deep: linear-gradient(180deg, #050a15 0%, #070d1a 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  --gradient-mint: linear-gradient(135deg, #2dd4bf 0%, #38bdf8 100%);
+  --gradient-deep: linear-gradient(180deg, #0b1322 0%, #080e18 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(17, 29, 51, 0.88) 0%, rgba(13, 22, 38, 0.75) 100%);
 }
 
 html {
@@ -151,7 +200,7 @@ button:not(:disabled),
 
 /* Utility: glassmorphism card */
 @utility glass-card {
-  @apply rounded-xl border border-border bg-card/80 backdrop-blur-md p-6;
+  @apply rounded-xl border border-border bg-card/90 shadow-sm backdrop-blur-md p-6;
 }
 
 /* Utility: page container with max-width */

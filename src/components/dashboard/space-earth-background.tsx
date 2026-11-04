@@ -10,8 +10,12 @@ export function SpaceEarthBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    const isDark = document.documentElement.classList.contains("dark");
+
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050a15, 0.0018);
+    if (isDark) {
+      scene.fog = new THREE.FogExp2(0x0b1322, 0.0012);
+    }
 
     const camera = new THREE.PerspectiveCamera(
       55,
@@ -29,21 +33,22 @@ export function SpaceEarthBackground() {
     });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.7 : 1.1);
     scene.add(ambientLight);
 
-    const mintLight = new THREE.PointLight(0x22d3ee, 0.9, 1200);
+    const mintLight = new THREE.PointLight(0x0d9488, isDark ? 1.0 : 1.4, 1200);
     mintLight.position.set(200, 100, 300);
     scene.add(mintLight);
 
-    const tealLight = new THREE.PointLight(0x2dd4bf, 0.7, 1200);
+    const tealLight = new THREE.PointLight(0x0284c7, isDark ? 0.8 : 1.2, 1200);
     tealLight.position.set(-200, -100, 300);
     scene.add(tealLight);
 
-    // Starfield
-    const starCount = 1600;
+    // Starfield / ambient particle constellation
+    const starCount = 1400;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
     const starVelocities: number[] = [];
@@ -60,10 +65,10 @@ export function SpaceEarthBackground() {
       new THREE.BufferAttribute(starPositions, 3),
     );
     const starMaterial = new THREE.PointsMaterial({
-      color: 0xffffff,
-      size: 1.5,
+      color: isDark ? 0xffffff : 0x0284c7,
+      size: isDark ? 1.6 : 1.8,
       transparent: true,
-      opacity: 0.65,
+      opacity: isDark ? 0.65 : 0.3,
       sizeAttenuation: true,
     });
     const stars = new THREE.Points(starGeometry, starMaterial);
@@ -73,9 +78,9 @@ export function SpaceEarthBackground() {
     const earthGroup = new THREE.Group();
     const earthGeo = new THREE.SphereGeometry(62, 36, 36);
     const earthMat = new THREE.MeshStandardMaterial({
-      color: 0x0b1b32,
-      emissive: 0x22d3ee,
-      emissiveIntensity: 0.45,
+      color: isDark ? 0x0b1b32 : 0x0284c7,
+      emissive: isDark ? 0x22d3ee : 0x0d9488,
+      emissiveIntensity: isDark ? 0.45 : 0.35,
       roughness: 0.35,
       metalness: 0.15,
     });
@@ -85,9 +90,9 @@ export function SpaceEarthBackground() {
     // Glow ring
     const glowGeo = new THREE.SphereGeometry(67, 36, 36);
     const glowMat = new THREE.MeshBasicMaterial({
-      color: 0x2dd4bf,
+      color: isDark ? 0x2dd4bf : 0x38bdf8,
       transparent: true,
-      opacity: 0.16,
+      opacity: isDark ? 0.16 : 0.22,
       side: THREE.BackSide,
     });
     const glow = new THREE.Mesh(glowGeo, glowMat);
@@ -96,9 +101,9 @@ export function SpaceEarthBackground() {
     // Orbital ring
     const ringGeo = new THREE.RingGeometry(85, 87, 64);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0x22d3ee,
+      color: isDark ? 0x22d3ee : 0x0d9488,
       transparent: true,
-      opacity: 0.22,
+      opacity: isDark ? 0.22 : 0.28,
       side: THREE.DoubleSide,
     });
     const orbitRing = new THREE.Mesh(ringGeo, ringMat);
@@ -110,7 +115,7 @@ export function SpaceEarthBackground() {
     // Radar ping
     const pingGeo = new THREE.RingGeometry(55, 65, 64);
     const pingMat = new THREE.MeshBasicMaterial({
-      color: 0x22d3ee,
+      color: isDark ? 0x22d3ee : 0x0d9488,
       transparent: true,
       opacity: 0,
       side: THREE.DoubleSide,
