@@ -4,7 +4,6 @@ import { ArrowRight, Bookmark, CalendarClock, Compass, KanbanSquare, ScanSearch,
 import Link from "next/link";
 import { useMemo } from "react";
 import { EmptyState, Section } from "@/components/app-shell/page-header";
-import { ThreeDashboardBackground } from "./three-dashboard-background";
 import { OpportunityCard } from "@/components/opportunities/opportunity-card";
 import { DeadlineText } from "@/components/shared/deadline-text";
 import { ApplicationStatusBadge, OutcomeBadge } from "@/components/shared/status-badges";
@@ -101,12 +100,10 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
 
   return (
     <div className="space-y-10 relative min-h-[90vh]">
-      <ThreeDashboardBackground />
-      <div className="relative z-10">
-        <section className="grid gap-6 rounded-lg border border-border bg-card p-6 md:grid-cols-[1fr_auto] md:items-center md:p-7">
+      <section className="grid gap-6 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-6 md:grid-cols-[1fr_auto] md:items-center md:p-7">
         <div className="space-y-3">
-          <p className="text-xs font-medium tracking-wide text-brand uppercase">Dashboard</p>
-          <h1 className="text-2xl font-semibold tracking-tight md:text-[1.7rem]">
+          <p className="text-xs font-medium tracking-wide text-brand/90 uppercase">Dashboard</p>
+          <h1 className="text-2xl font-semibold tracking-tight md:text-[1.7rem] text-gradient">
             {firstName ? `Welcome back, ${firstName}` : "Welcome to OpportunityLens"}
           </h1>
           {data.profile ? (
@@ -151,12 +148,12 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
       </section>
 
       {data.profile && (
-        <section aria-label="Eligibility across open opportunities" className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
+        <section aria-label="Eligibility across open opportunities" className="grid gap-px overflow-hidden rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm sm:grid-cols-3">
           {(Object.keys(outcomeCounts) as EligibilityOutcome[]).map((outcome) => (
-            <Link key={outcome} href="/app/eligibility" className="flex items-center justify-between gap-3 bg-card p-5 hover:bg-muted/40">
+            <Link key={outcome} href="/app/eligibility" className="flex items-center justify-between gap-3 bg-card/30 backdrop-blur-sm p-5 hover:bg-brand/10 transition-colors">
               <div>
-                <p className="text-2xl font-semibold tabular-nums">{outcomeCounts[outcome]}</p>
-                <p className="text-sm text-muted-foreground">{OUTCOME_LABELS[outcome]}</p>
+                <p className="text-2xl font-semibold tabular-nums text-gradient">{outcomeCounts[outcome]}</p>
+                <p className="text-sm text-muted-foreground/90">{OUTCOME_LABELS[outcome]}</p>
               </div>
               <OutcomeBadge outcome={outcome} />
             </Link>
@@ -215,7 +212,7 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
               description="Save or track an opportunity and its deadline will appear here."
             />
           ) : (
-            <ul className="divide-y divide-border rounded-lg border border-border bg-card">
+            <ul className="divide-y divide-border rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm">
               {deadlines.map((item) => (
                 <li key={item.opportunity.id} className="flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
@@ -246,7 +243,7 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
               description="Use “Track application” on any opportunity to follow it from interested to accepted."
             />
           ) : (
-            <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+            <div className="space-y-3 rounded-xl border border-border/50 bg-card/40 backdrop-blur-sm p-4">
               <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {APPLICATION_STATUSES.map((status) => {
                   const count = data.applications.filter((application) => application.status === status).length;
@@ -258,7 +255,7 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
                   );
                 })}
               </ul>
-              <ul className="divide-y divide-border border-t border-border">
+              <ul className="divide-y divide-border border-t border-border/50">
                 {data.applications.slice(0, 3).map((application) => {
                   const opportunity = byId.get(application.opportunityId);
                   if (!opportunity) return null;
@@ -307,7 +304,6 @@ export function Dashboard({ opportunities }: { opportunities: Opportunity[] }) {
           </ul>
         )}
       </Section>
-      </div>
     </div>
   );
 }
