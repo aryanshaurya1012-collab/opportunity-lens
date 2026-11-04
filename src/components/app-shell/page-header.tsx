@@ -17,26 +17,26 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-b border-border/50 pb-6 md:flex-row md:items-end md:justify-between bg-background/40 backdrop-blur-sm rounded-xl border border-border/30 p-6",
+        "flex flex-col gap-4 md:flex-row md:items-end md:justify-between rounded-2xl border border-border/60 bg-card/60 p-6 md:p-7 backdrop-blur-sm shadow-xs",
         className,
       )}
     >
       <div className="min-w-0 space-y-1.5">
         {eyebrow && (
-          <p className="text-xs font-medium tracking-wide text-brand/90 uppercase">
+          <p className="text-xs font-semibold tracking-wider text-brand uppercase">
             {eyebrow}
           </p>
         )}
-        <h1 className="text-2xl font-semibold tracking-tight md:text-[1.7rem] text-gradient">
+        <h1 className="text-2xl font-bold tracking-tight md:text-3xl text-foreground">
           {title}
         </h1>
         {description && (
-          <div className="max-w-2xl text-sm text-muted-foreground/90">
+          <div className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
             {description}
           </div>
         )}
       </div>
-      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2.5">{actions}</div>}
     </div>
   );
 }
@@ -62,7 +62,7 @@ export function Section({
     <section className={cn("space-y-4", className)} aria-labelledby={`section-${title.replace(/\W+/g, "-").toLowerCase()}`}>
       <div className="flex items-end justify-between gap-4">
         <div>
-          <h2 id={`section-${title.replace(/\W+/g, "-").toLowerCase()}`} className="text-base font-semibold">
+          <h2 id={`section-${title.replace(/\W+/g, "-").toLowerCase()}`} className="text-base font-semibold text-foreground">
             {title}
           </h2>
           {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
@@ -86,11 +86,11 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border px-6 py-12 text-center">
-      {icon && <div className="text-muted-foreground [&>svg]:size-6">{icon}</div>}
+    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border p-8 md:p-12 text-center bg-card/40">
+      {icon && <div className="text-muted-foreground [&>svg]:size-7">{icon}</div>}
       <div className="space-y-1">
-        <p className="font-medium">{title}</p>
-        <p className="mx-auto max-w-md text-sm text-muted-foreground">{description}</p>
+        <p className="font-semibold text-foreground text-sm">{title}</p>
+        <p className="mx-auto max-w-md text-xs text-muted-foreground leading-relaxed">{description}</p>
       </div>
       {action}
     </div>

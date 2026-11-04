@@ -63,17 +63,24 @@ export default async function AiAnalysisPage() {
                 </dl>
               </section>
 
-              {flowUrl && (
+              {flowUrl ? (
                 <section className="p-5 rounded-xl border border-border bg-card/60 space-y-3">
                   <h3 className="text-sm font-semibold text-foreground">Launch Amazon PartyRock External App</h3>
-                  <p className="text-xs text-muted-foreground">
-                    If you prefer Amazon&apos;s open-ended interface, you can launch the PartyRock app in a separate tab.
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    You can launch our companion PartyRock app in a separate tab to interactively explore open-ended guidance.
                   </p>
                   <Button asChild size="sm" className="bg-brand text-brand-foreground hover:bg-brand/90 text-xs">
                     <a href={flowUrl} target="_blank" rel="noopener noreferrer">
                       Open PartyRock App <ArrowUpRight className="size-3.5 ml-1" />
                     </a>
                   </Button>
+                </section>
+              ) : (
+                <section className="p-5 rounded-xl border border-border/60 bg-muted/30 space-y-2">
+                  <h3 className="text-xs font-semibold text-foreground">Amazon PartyRock Companion App</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    PartyRock link optional. Set <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px]">NEXT_PUBLIC_PARTYROCK_FLOW_URL</code> in your environment variables to enable direct one-click launch. The in-app AI Studio above is fully functional right now.
+                  </p>
                 </section>
               )}
             </div>

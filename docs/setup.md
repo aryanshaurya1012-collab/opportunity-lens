@@ -34,7 +34,7 @@ Open <http://localhost:3000>. Click **Create your profile** (or go to `/onboardi
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | No | Canonical https URL for metadata |
-| `NEXT_PUBLIC_PARTYROCK_FLOW_URL` | No | Public https URL of the PartyRock app. Without it, the launch button is shown disabled with an explanation. |
+| `NEXT_PUBLIC_PARTYROCK_FLOW_URL` | No | Public https URL of the optional PartyRock companion flow. When set, enables direct launch from the AI Analysis page. |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No (P1) | Reserved for the Supabase repository; not used yet |
 | `SUPABASE_SERVICE_ROLE_KEY` | No (P1) | Server-only, for admin scripts. Never expose to the browser. |
 

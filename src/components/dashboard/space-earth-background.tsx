@@ -10,44 +10,54 @@ export function SpaceEarthBackground() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
     const isDark = document.documentElement.classList.contains("dark");
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+      });
+    } catch {
+      // Graceful fallback if WebGL is unavailable
+      return;
+    }
+
+    const width = canvas.clientWidth || window.innerWidth;
+    const height = canvas.clientHeight || window.innerHeight;
 
     const scene = new THREE.Scene();
     if (isDark) {
-      scene.fog = new THREE.FogExp2(0x0b1322, 0.0012);
+      scene.fog = new THREE.FogExp2(0x070d1a, 0.001);
     }
 
-    const camera = new THREE.PerspectiveCamera(
-      55,
-      canvas.clientWidth / canvas.clientHeight,
-      0.1,
-      2500,
-    );
+    const camera = new THREE.PerspectiveCamera(55, width / height, 0.1, 2500);
     camera.position.z = 600;
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-      powerPreference: "high-performance",
-    });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setSize(width, height, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.7 : 1.1);
+    const ambientLight = new THREE.AmbientLight(0xffffff, isDark ? 0.75 : 1.1);
     scene.add(ambientLight);
 
-    const mintLight = new THREE.PointLight(0x0d9488, isDark ? 1.0 : 1.4, 1200);
+    const mintLight = new THREE.PointLight(0x0d9488, isDark ? 1.0 : 1.3, 1200);
     mintLight.position.set(200, 100, 300);
     scene.add(mintLight);
 
-    const tealLight = new THREE.PointLight(0x0284c7, isDark ? 0.8 : 1.2, 1200);
+    const tealLight = new THREE.PointLight(0x0284c7, isDark ? 0.8 : 1.1, 1200);
     tealLight.position.set(-200, -100, 300);
     scene.add(tealLight);
 
-    // Starfield / ambient particle constellation
+    // Starfield
     const starCount = 1400;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
@@ -57,7 +67,7 @@ export function SpaceEarthBackground() {
       starPositions[i * 3] = (Math.random() - 0.5) * 2200;
       starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1400;
       starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2200;
-      starVelocities.push((Math.random() - 0.5) * 0.5);
+      starVelocities.push((Math.random() - 0.5) * 0.4);
     }
 
     starGeometry.setAttribute(
@@ -66,15 +76,15 @@ export function SpaceEarthBackground() {
     );
     const starMaterial = new THREE.PointsMaterial({
       color: isDark ? 0xffffff : 0x0284c7,
-      size: isDark ? 1.6 : 1.8,
+      size: isDark ? 1.5 : 1.7,
       transparent: true,
-      opacity: isDark ? 0.65 : 0.3,
+      opacity: isDark ? 0.65 : 0.28,
       sizeAttenuation: true,
     });
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 
-    // Earth group
+    // Central Earth group
     const earthGroup = new THREE.Group();
     const earthGeo = new THREE.SphereGeometry(62, 36, 36);
     const earthMat = new THREE.MeshStandardMaterial({
@@ -124,6 +134,27 @@ export function SpaceEarthBackground() {
     ping.position.z = -5;
     scene.add(ping);
 
+    // Initial render
+    renderer.render(scene, camera);
+
+    if (prefersReducedMotion) {
+      // Respect prefers-reduced-motion by keeping the scene static
+      return () => {
+        renderer.dispose();
+        scene.remove(ambientLight, mintLight, tealLight, stars, earthGroup, ping);
+        earthGeo.dispose();
+        earthMat.dispose();
+        glowGeo.dispose();
+        glowMat.dispose();
+        ringGeo.dispose();
+        ringMat.dispose();
+        pingGeo.dispose();
+        pingMat.dispose();
+        starGeometry.dispose();
+        starMaterial.dispose();
+      };
+    }
+
     let mouseX = 0;
     let mouseY = 0;
     const handleMouseMove = (event: MouseEvent) => {
@@ -143,6 +174,19 @@ export function SpaceEarthBackground() {
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
 
+    // Responsive container resize observer
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: newWidth, height: newHeight } = entry.contentRect;
+        if (newWidth > 0 && newHeight > 0) {
+          camera.aspect = newWidth / newHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(newWidth, newHeight, false);
+        }
+      }
+    });
+    resizeObserver.observe(canvas);
+
     const clock = new THREE.Clock();
     let pingRadius = 55;
     let pingOpacity = 0;
@@ -154,7 +198,7 @@ export function SpaceEarthBackground() {
 
       const elapsed = clock.getElapsedTime();
 
-      // Smooth scroll lerping
+      // Smooth scroll interpolation
       currentScrollY += (targetScrollY - currentScrollY) * 0.08;
       scrollVelocity = currentScrollY - prevScrollY;
       prevScrollY = currentScrollY;
@@ -196,7 +240,7 @@ export function SpaceEarthBackground() {
       }
       starGeometry.attributes.position.needsUpdate = true;
 
-      // Radar ping pulse (reacts also to active scroll)
+      // Radar ping pulse (reacts to active scroll)
       const triggerChance = Math.abs(scrollVelocity) > 2 ? 0.04 : 0.008;
       if (!pingGrowing && Math.random() < triggerChance) {
         pingGrowing = true;
@@ -221,19 +265,11 @@ export function SpaceEarthBackground() {
 
     animate();
 
-    const handleResize = () => {
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    };
-
-    window.addEventListener("resize", handleResize);
-
     return () => {
       cancelAnimationFrame(animationFrameId);
+      resizeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleResize);
 
       renderer.dispose();
       scene.remove(ambientLight, mintLight, tealLight, stars, earthGroup, ping);
@@ -253,7 +289,7 @@ export function SpaceEarthBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full z-0 pointer-events-none"
+      className="h-full w-full pointer-events-none block"
       aria-hidden="true"
     />
   );
