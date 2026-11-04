@@ -36,7 +36,7 @@ const ARCHITECTURE = [
 
 export default function AboutPage() {
   return (
-    <PageShell background="fluid">
+    <PageShell background="none">
       <div className="container-page space-y-20 py-14 md:py-20">
         <header className="max-w-3xl space-y-5">
           <p className="text-sm font-medium text-brand">About OpportunityLens</p>

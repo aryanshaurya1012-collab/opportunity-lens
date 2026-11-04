@@ -13,7 +13,7 @@ export default async function OpportunitiesPage() {
   const opportunities = await getOpportunityRepository().listPublished();
 
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <div className="container-page space-y-10 py-12 md:py-16">
         <header className="max-w-2xl space-y-3">
           <h1 className="font-display text-4xl tracking-tight text-gradient md:text-5xl">Discover opportunities</h1>

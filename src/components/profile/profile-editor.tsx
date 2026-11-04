@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check, Plus, ShieldCheck, Trash2, Wand2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Plus, ShieldCheck, Sparkles, Trash2, Wand2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useId, useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
@@ -42,17 +42,20 @@ interface Suggestions {
 }
 
 const STEPS = [
-  { id: "about", title: "About you", description: "Who you are and where you study." },
-  { id: "academics", title: "Academics", description: "Used to check level, year and grade requirements." },
-  { id: "skills", title: "Skills & interests", description: "Used for skill requirements and recommendations." },
-  { id: "experience", title: "Projects & experience", description: "Evidence for experience requirements." },
-  { id: "optional", title: "Optional eligibility details", description: "Only needed for citizenship- or age-restricted listings." },
+  { id: "personal", title: "1. Personal Information", description: "Who you are and where you study. Used for basic identity and location-restricted opportunities." },
+  { id: "academics", title: "2. Education & Academic Details", description: "Used to check degree level, academic year and grade thresholds against opportunity criteria." },
+  { id: "skills", title: "3. Skills & Interests", description: "Technical competencies and domain interests used for eligibility rules and match recommendations." },
+  { id: "experience", title: "4. Projects & Experience", description: "Real-world projects, internships, leadership roles, and research experience used as proof for prerequisites." },
+  { id: "preferences", title: "5. Opportunity Preferences", description: "Select which types of opportunities you are actively seeking. Used to prioritise your discover feed." },
+  { id: "optional", title: "6. Optional Eligibility Information", description: "Only needed for citizenship- or age-restricted opportunities. Stored securely and strictly in this browser." },
+  { id: "review", title: "7. Review & Save", description: "Verify your profile completeness and save to your local browser storage." },
 ] as const;
+
 type StepId = (typeof STEPS)[number]["id"];
 
 const ERROR_STEP: Record<keyof ProfileErrors, StepId> = {
-  fullName: "about",
-  institution: "about",
+  fullName: "personal",
+  institution: "personal",
   graduationYear: "academics",
   grade: "academics",
   dateOfBirth: "optional",
@@ -75,11 +78,11 @@ function Field({
 }) {
   return (
     <div className={cn("space-y-1.5", className)}>
-      <Label htmlFor={htmlFor}>{label}</Label>
+      <Label htmlFor={htmlFor} className="text-foreground text-sm font-medium">{label}</Label>
       {children}
       {hint && !error && <p className="text-xs text-muted-foreground">{hint}</p>}
       {error && (
-        <p id={`${htmlFor}-error`} className="text-xs text-danger" role="alert">
+        <p id={`${htmlFor}-error`} className="text-xs text-danger font-medium" role="alert">
           {error}
         </p>
       )}
@@ -106,7 +109,7 @@ function ExperienceEditor({
 }) {
   const id = useId();
   return (
-    <li className="space-y-4 rounded-lg border border-border p-4">
+    <li className="space-y-4 rounded-xl border border-border/70 bg-card/60 p-4 md:p-5">
       <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
         <Field label="Type" htmlFor={`${id}-kind`}>
           <Select value={experience.kind} onValueChange={(value) => onChange({ ...experience, kind: value as ExperienceKind })}>
@@ -158,8 +161,8 @@ function ExperienceEditor({
         placeholder="Type a skill and press Enter"
         max={12}
       />
-      <div className="flex justify-end">
-        <Button type="button" variant="ghost" size="sm" onClick={onRemove} className="text-danger">
+      <div className="flex justify-end pt-1">
+        <Button type="button" variant="ghost" size="sm" onClick={onRemove} className="text-danger hover:text-danger/90">
           <Trash2 data-icon="inline-start" /> Remove
         </Button>
       </div>
@@ -206,7 +209,12 @@ function ProfileForm({
     setErrors(nextErrors);
     const firstError = Object.keys(nextErrors)[0] as keyof ProfileErrors | undefined;
     if (firstError) {
-      if (mode === "wizard") setStepIndex(STEPS.findIndex((step) => step.id === ERROR_STEP[firstError]));
+      if (mode === "wizard") {
+        setStepIndex(STEPS.findIndex((step) => step.id === ERROR_STEP[firstError]));
+      } else {
+        const targetElement = document.getElementById(`${id}-${firstError}`);
+        targetElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
       return;
     }
     actions.saveProfile({
@@ -215,27 +223,33 @@ function ProfileForm({
       institution: draft.institution.trim(),
       experiences: draft.experiences.filter((experience) => experience.title.trim()),
     });
-    if (mode === "wizard") router.push("/app?welcome=1");
-    else setSavedAt(Date.now());
+    if (mode === "wizard") {
+      router.push("/app?welcome=1");
+    } else {
+      setSavedAt(Date.now());
+    }
   };
 
   const next = () => {
-    if (STEPS[stepIndex].id === "about") {
-      const aboutErrors = validateProfile(draft, currentYear);
-      const blocking = { fullName: aboutErrors.fullName, institution: aboutErrors.institution };
+    if (STEPS[stepIndex].id === "personal") {
+      const personalErrors = validateProfile(draft, currentYear);
+      const blocking = { fullName: personalErrors.fullName, institution: personalErrors.institution };
       setErrors(blocking);
       if (blocking.fullName || blocking.institution) return;
     }
     setStepIndex((index) => Math.min(index + 1, STEPS.length - 1));
   };
 
-  const sectionClass = mode === "edit" ? "space-y-5 rounded-lg border border-border bg-card p-5 md:p-6" : "space-y-5";
+  const sectionClass =
+    mode === "edit"
+      ? "space-y-6 rounded-2xl border border-border/80 bg-card/85 p-6 md:p-8 backdrop-blur-sm shadow-xs transition-shadow"
+      : "space-y-6";
 
   const sectionHeader = (step: (typeof STEPS)[number]) =>
     mode === "edit" ? (
-      <div>
-        <h2 className="font-semibold">{step.title}</h2>
-        <p className="text-sm text-muted-foreground">{step.description}</p>
+      <div className="border-b border-border/60 pb-4">
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{step.title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
       </div>
     ) : null;
 
@@ -247,20 +261,21 @@ function ProfileForm({
         if (mode === "wizard" && stepIndex < STEPS.length - 1) next();
         else save();
       }}
-      className="space-y-6"
+      className={cn("space-y-8", mode === "edit" && "pb-32")}
     >
+      {/* Wizard Progress or Edit Summary Header */}
       {mode === "wizard" ? (
-        <div className="space-y-4">
+        <div className="space-y-4 rounded-2xl border border-border/80 bg-card/85 p-6 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-4 text-sm">
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground font-medium">
               Step {stepIndex + 1} of {STEPS.length}
             </p>
-            <p className="text-muted-foreground tabular-nums">{completion.percent}% complete</p>
+            <p className="text-brand tabular-nums font-semibold">{completion.percent}% complete</p>
           </div>
           <Progress value={((stepIndex + 1) / STEPS.length) * 100} aria-label="Onboarding progress" />
-          <div>
-            <h2 className="text-xl font-semibold">{STEPS[stepIndex].title}</h2>
-            <p className="text-sm text-muted-foreground">{STEPS[stepIndex].description}</p>
+          <div className="pt-2">
+            <h2 className="text-xl font-bold text-foreground">{STEPS[stepIndex].title}</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">{STEPS[stepIndex].description}</p>
           </div>
           {stepIndex === 0 && (
             <button
@@ -269,25 +284,41 @@ function ProfileForm({
                 setDraft({ ...SAMPLE_PROFILE });
                 setErrors({});
               }}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline pt-2"
             >
               <Wand2 aria-hidden className="size-3.5" /> Fill with a fictional sample profile (for demos)
             </button>
           )}
         </div>
       ) : (
-        <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-2xl border border-border/80 bg-card/85 p-6 sm:flex-row sm:items-center sm:justify-between backdrop-blur-sm">
           <div className="space-y-1">
-            <p className="text-sm font-medium">Profile {completion.percent}% complete</p>
+            <p className="text-base font-semibold text-foreground">Profile {completion.percent}% complete</p>
             <p className="text-xs text-muted-foreground">
-              {completion.missing.length ? `Missing: ${completion.missing.join(", ")}` : "Everything the eligibility engine uses is filled in."}
+              {completion.missing.length
+                ? `Missing: ${completion.missing.join(", ")}`
+                : "All fields used by the eligibility engine are complete."}
             </p>
           </div>
-          <Progress value={completion.percent} className="sm:w-48" aria-label="Profile completion" />
+          <div className="flex items-center gap-4">
+            <Progress value={completion.percent} className="w-36 sm:w-48" aria-label="Profile completion" />
+            <button
+              type="button"
+              onClick={() => {
+                setDraft({ ...SAMPLE_PROFILE });
+                setErrors({});
+                setSavedAt(null);
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-brand hover:underline shrink-0"
+            >
+              <Wand2 aria-hidden className="size-3.5" /> Fill sample data
+            </button>
+          </div>
         </div>
       )}
 
-      {visible("about") && (
+      {/* 1. PERSONAL INFORMATION */}
+      {visible("personal") && (
         <section className={sectionClass}>
           {sectionHeader(STEPS[0])}
           <div className="grid gap-5 sm:grid-cols-2">
@@ -300,6 +331,7 @@ function ProfileForm({
                 aria-invalid={Boolean(errors.fullName)}
                 aria-describedby={errors.fullName ? `${id}-name-error` : undefined}
                 className="h-9"
+                placeholder="e.g. Alex Morgan"
                 required
               />
             </Field>
@@ -312,6 +344,7 @@ function ProfileForm({
                 aria-invalid={Boolean(errors.institution)}
                 aria-describedby={errors.institution ? `${id}-inst-error` : undefined}
                 className="h-9"
+                placeholder="e.g. Indian Institute of Technology"
                 required
               />
             </Field>
@@ -322,6 +355,7 @@ function ProfileForm({
                 onChange={(event) => set("country", event.target.value)}
                 autoComplete="country-name"
                 className="h-9"
+                placeholder="e.g. India"
               />
             </Field>
             <Field label="City (optional)" htmlFor={`${id}-city`}>
@@ -331,12 +365,14 @@ function ProfileForm({
                 onChange={(event) => set("city", event.target.value)}
                 autoComplete="address-level2"
                 className="h-9"
+                placeholder="e.g. Bangalore"
               />
             </Field>
           </div>
         </section>
       )}
 
+      {/* 2. EDUCATION & ACADEMIC DETAILS */}
       {visible("academics") && (
         <section className={sectionClass}>
           {sectionHeader(STEPS[1])}
@@ -356,7 +392,7 @@ function ProfileForm({
               </Select>
             </Field>
             <Field label="Degree / course" htmlFor={`${id}-degree`} hint="e.g. B.Tech, B.Sc, MBA">
-              <Input id={`${id}-degree`} value={draft.degree} onChange={(event) => set("degree", event.target.value)} className="h-9" />
+              <Input id={`${id}-degree`} value={draft.degree} onChange={(event) => set("degree", event.target.value)} className="h-9" placeholder="e.g. B.Tech Computer Science" />
             </Field>
             <Field label="Field of study" htmlFor={`${id}-field`}>
               <Select value={draft.fieldOfStudy ?? undefined} onValueChange={(value) => set("fieldOfStudy", value as FieldOfStudy)}>
@@ -400,7 +436,7 @@ function ProfileForm({
                 className="h-9"
               />
             </Field>
-            <Field label="CGPA / percentage" htmlFor={`${id}-grade`} error={errors.grade} hint="Leave blank if you prefer; grade requirements will show as missing information.">
+            <Field label="CGPA / percentage" htmlFor={`${id}-grade`} error={errors.grade} hint="Leave blank if you prefer; grade requirements will show as missing info.">
               <div className="flex gap-2">
                 <Input
                   id={`${id}-grade`}
@@ -412,6 +448,7 @@ function ProfileForm({
                   }}
                   aria-invalid={Boolean(errors.grade)}
                   className="h-9 w-24"
+                  placeholder="8.5"
                 />
                 <Select
                   value={draft.grade?.scale ?? "cgpa_10"}
@@ -435,64 +472,39 @@ function ProfileForm({
         </section>
       )}
 
+      {/* 3. SKILLS & INTERESTS */}
       {visible("skills") && (
         <section className={sectionClass}>
           {sectionHeader(STEPS[2])}
           <TagInput
-            label="Skills"
-            description="Languages, tools and abilities. Skills from your projects are counted automatically."
+            label="Technical skills & tools"
+            description="Languages, frameworks and tools you know. Skills added to your projects are also included automatically."
             values={draft.skills}
             onChange={(skills) => set("skills", skills)}
             suggestions={suggestions.skills}
             placeholder="Type a skill and press Enter"
           />
           <TagInput
-            label="Areas of interest"
+            label="Areas of interest & domains"
+            description="Topics and industries you are passionate about, such as AI, climate, fintech, healthcare, robotics, or design."
             values={draft.interests}
             onChange={(interests) => set("interests", interests)}
             suggestions={suggestions.interests}
-            placeholder="e.g. climate, fintech, ai"
+            placeholder="e.g. climate, fintech, ai, robotics"
           />
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium">Preferred opportunity types</legend>
-            <div className="grid gap-2.5 sm:grid-cols-2">
-              {OPPORTUNITY_CATEGORIES.map((category) => {
-                const checkboxId = `${id}-pref-${category}`;
-                const checked = draft.preferredCategories.includes(category);
-                return (
-                  <div key={category} className="flex items-center gap-2.5">
-                    <Checkbox
-                      id={checkboxId}
-                      checked={checked}
-                      onCheckedChange={() =>
-                        set(
-                          "preferredCategories",
-                          checked
-                            ? draft.preferredCategories.filter((item) => item !== category)
-                            : [...draft.preferredCategories, category],
-                        )
-                      }
-                    />
-                    <Label htmlFor={checkboxId} className="font-normal">
-                      {CATEGORY_PLURAL_LABELS[category]}
-                    </Label>
-                  </div>
-                );
-              })}
-            </div>
-          </fieldset>
         </section>
       )}
 
+      {/* 4. PROJECTS & EXPERIENCE */}
       {visible("experience") && (
         <section className={sectionClass}>
           {sectionHeader(STEPS[3])}
           {draft.experiences.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              No entries yet. Without any, experience requirements show as missing information rather than failing.
+            <p className="text-sm text-muted-foreground bg-muted/30 rounded-xl p-4 border border-border/50">
+              No entries yet. Without any project or internship entries, experience requirements will show as missing information rather than failing.
             </p>
           )}
-          <ul className="space-y-3">
+          <ul className="space-y-4">
             {draft.experiences.map((experience, index) => (
               <ExperienceEditor
                 key={experience.id}
@@ -518,23 +530,70 @@ function ProfileForm({
               ])
             }
             disabled={draft.experiences.length >= 15}
+            className="w-full sm:w-auto"
           >
             <Plus data-icon="inline-start" /> Add project or experience
           </Button>
         </section>
       )}
 
-      {visible("optional") && (
+      {/* 5. OPPORTUNITY PREFERENCES */}
+      {visible("preferences") && (
         <section className={sectionClass}>
           {sectionHeader(STEPS[4])}
-          <div className="flex gap-3 rounded-lg border border-border bg-muted/40 p-4 text-sm">
-            <ShieldCheck aria-hidden className="mt-0.5 size-4 shrink-0 text-brand" />
+          <fieldset className="space-y-4">
+            <legend className="text-sm font-semibold text-foreground">Preferred opportunity categories</legend>
+            <p className="text-xs text-muted-foreground">
+              Select which categories you are looking for. Opportunities in your preferred categories receive an eligibility score boost on the Discover page.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 pt-2">
+              {OPPORTUNITY_CATEGORIES.map((category) => {
+                const checkboxId = `${id}-pref-${category}`;
+                const checked = draft.preferredCategories.includes(category);
+                return (
+                  <div
+                    key={category}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border p-3.5 transition-colors cursor-pointer",
+                      checked ? "border-brand/40 bg-brand/5" : "border-border/60 bg-muted/20 hover:bg-muted/40",
+                    )}
+                    onClick={() =>
+                      set(
+                        "preferredCategories",
+                        checked
+                          ? draft.preferredCategories.filter((item) => item !== category)
+                          : [...draft.preferredCategories, category],
+                      )
+                    }
+                  >
+                    <Checkbox
+                      id={checkboxId}
+                      checked={checked}
+                      onCheckedChange={() => {}} // Handled by container
+                    />
+                    <Label htmlFor={checkboxId} className="font-medium text-foreground cursor-pointer text-sm">
+                      {CATEGORY_PLURAL_LABELS[category]}
+                    </Label>
+                  </div>
+                );
+              })}
+            </div>
+          </fieldset>
+        </section>
+      )}
+
+      {/* 6. OPTIONAL ELIGIBILITY INFORMATION */}
+      {visible("optional") && (
+        <section className={sectionClass}>
+          {sectionHeader(STEPS[5])}
+          <div className="flex gap-3.5 rounded-xl border border-border/80 bg-muted/30 p-4 text-sm leading-relaxed">
+            <ShieldCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-brand" />
             <p className="text-muted-foreground">
-              Some opportunities are restricted by citizenship or age. These details are optional, are only used to
-              check those requirements, and in demo mode never leave this browser. You can remove them at any time.
+              Certain prestigious opportunities require specific citizenship or age criteria. These details are completely optional,
+              used strictly for deterministic rule verification, and stored solely on your device.
             </p>
           </div>
-          <div className="flex items-start gap-2.5">
+          <div className="flex items-start gap-3 pt-1">
             <Checkbox
               id={`${id}-consent`}
               checked={draft.sensitive !== null}
@@ -545,12 +604,12 @@ function ProfileForm({
                 )
               }
             />
-            <Label htmlFor={`${id}-consent`} className="leading-snug font-normal">
-              I consent to OpportunityLens storing my citizenship and date of birth for eligibility checks.
+            <Label htmlFor={`${id}-consent`} className="leading-snug font-normal text-foreground/90 text-sm cursor-pointer">
+              I consent to OpportunityLens storing my citizenship and date of birth for eligibility checks in this browser.
             </Label>
           </div>
           {draft.sensitive && (
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2 pt-2 animate-in fade-in-50 duration-200">
               <Field label="Citizenship" htmlFor={`${id}-citizenship`}>
                 <Input
                   id={`${id}-citizenship`}
@@ -559,6 +618,7 @@ function ProfileForm({
                     draft.sensitive && set("sensitive", { ...draft.sensitive, citizenship: event.target.value || null })
                   }
                   className="h-9"
+                  placeholder="e.g. Indian"
                 />
               </Field>
               <Field label="Date of birth" htmlFor={`${id}-dob`} error={errors.dateOfBirth}>
@@ -578,6 +638,51 @@ function ProfileForm({
         </section>
       )}
 
+      {/* 7. REVIEW & SAVE (In natural document flow) */}
+      {visible("review") && (
+        <section className={sectionClass}>
+          {sectionHeader(STEPS[6])}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold text-foreground">Eligibility Evidence Readiness</span>
+              <span className="font-bold text-brand">{completion.percent}%</span>
+            </div>
+            <Progress value={completion.percent} aria-label="Evidence readiness" />
+
+            {completion.missing.length > 0 ? (
+              <div className="rounded-xl border border-warning/30 bg-warning-soft p-4 text-xs text-muted-foreground space-y-1.5">
+                <p className="font-semibold text-warning">Recommended details to add for complete match coverage:</p>
+                <p>{completion.missing.join(" · ")}</p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 rounded-xl border border-success/30 bg-success-soft p-4 text-xs text-success font-medium">
+                <Check className="size-4" /> All essential eligibility fields are filled! Your profile is ready for maximum matching.
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/60">
+              <p className="text-sm text-muted-foreground" aria-live="polite">
+                {savedAt ? (
+                  <span className="text-success font-medium flex items-center gap-1.5">
+                    <Check className="size-4" /> Profile saved successfully to local storage.
+                  </span>
+                ) : Object.keys(errors).length ? (
+                  <span className="text-danger font-medium">
+                    Please correct the highlighted fields above.
+                  </span>
+                ) : (
+                  "Changes are stored in your browser's private local storage."
+                )}
+              </p>
+              <Button type="button" onClick={save} size="lg" className="h-10 px-6 font-semibold w-full sm:w-auto">
+                <Sparkles className="size-4 mr-2" /> Save profile
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Wizard Footer or Edit Sticky Footer */}
       {mode === "wizard" ? (
         <div className="flex items-center justify-between gap-3 border-t border-border pt-6">
           <Button
@@ -608,11 +713,19 @@ function ProfileForm({
           </div>
         </div>
       ) : (
-        <div className="sticky bottom-0 -mx-4 flex items-center justify-end gap-3 border-t border-border bg-background/95 px-4 py-4 backdrop-blur md:-mx-8 md:px-8">
-          <p className="text-sm text-muted-foreground" aria-live="polite">
-            {savedAt ? "Profile saved." : Object.keys(errors).length ? "Fix the highlighted fields." : ""}
+        <div className="sticky bottom-0 -mx-4 z-30 flex items-center justify-between gap-4 border-t border-border/80 bg-background/95 px-6 py-4 backdrop-blur-md shadow-lg md:-mx-8 md:px-8">
+          <p className="text-xs text-muted-foreground truncate" aria-live="polite">
+            {savedAt ? (
+              <span className="text-success font-medium flex items-center gap-1.5">
+                <Check className="size-3.5" /> Profile saved.
+              </span>
+            ) : Object.keys(errors).length ? (
+              <span className="text-danger font-medium">Fix the highlighted fields.</span>
+            ) : (
+              `${completion.percent}% complete · Auto-persisted in local storage`
+            )}
           </p>
-          <Button type="submit" size="lg" className="h-10 px-5">
+          <Button type="submit" size="lg" className="h-10 px-6 shrink-0 font-medium">
             Save profile
           </Button>
         </div>
@@ -624,7 +737,7 @@ function ProfileForm({
 export function ProfileEditor({ mode, suggestions }: { mode: Mode; suggestions: Suggestions }) {
   const { ready, data } = useUserData();
   if (!ready) {
-    return <div className="h-96 animate-pulse rounded-lg bg-muted" aria-busy="true" aria-label="Loading profile" />;
+    return <div className="h-96 animate-pulse rounded-2xl bg-muted/60" aria-busy="true" aria-label="Loading profile" />;
   }
   return (
     <ProfileForm

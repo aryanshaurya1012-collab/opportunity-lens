@@ -11,7 +11,7 @@ export default async function EligibilityPage() {
   const opportunities = await getOpportunityRepository().listPublished();
 
   return (
-    <PageShell background="fluid">
+    <PageShell background="none">
       <PageContainer>
         <PageHeader
           eyebrow="Eligibility intelligence"

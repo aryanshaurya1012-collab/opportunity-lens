@@ -26,7 +26,7 @@ export default async function AppOpportunityPage({ params }: PageProps) {
   if (!opportunity) notFound();
 
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <PageContainer>
         <OpportunityDetail opportunity={opportunity} backHref="/app/opportunities" backLabel="Back to discover" />
       </PageContainer>

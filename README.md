@@ -55,7 +55,9 @@ OpportunityLens operates a **dual-engine architecture**:
 - **Application Tracker**: Kanban and list views tracking applications from *Interested* to *Applied*, *Interviewing*, and *Accepted*, with personal deadlines and custom checklists.
 - **In-App AI Strategy Studio**: Interactive AI evaluator delivering custom fit scores, resume bullets, and interview prompts for any listing or custom job text.
 - **Amazon PartyRock Companion App Integration**: Seamless integration with external Amazon PartyRock flows via sanitized context export.
-- **Interactive 3D Visual Experience**: Responsive Three.js ambient space and fluid backgrounds reacting to scroll velocity and mouse parallax, centered within the application viewport.
+- **Interactive 3D Visual Experience**: Responsive Three.js ambient space and fluid wireframe backgrounds reacting to scroll velocity and mouse parallax. The dense teal wireframe is isolated strictly to the Profile creation and editing experience, while the 3D rotating earth sphere is isolated to the Landing Hero and Dashboard, with natural document scrolling and `prefers-reduced-motion` compliance.
+- **Natural Document Scrolling**: Full accessibility via wheel, touch, trackpad, and keyboard without viewport height constraints, scroll hijacking, or fixed action bar overlapping.
+- **Instant Route Transitions**: High-performance client-side navigation with Next.js link prefetching and zero-latency loading skeletons between all product workspace routes.
 
 ---
 
