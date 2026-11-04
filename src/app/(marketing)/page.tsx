@@ -14,11 +14,14 @@ import {
   Microscope,
   Presentation,
   Sparkles,
+  Shield,
   Trophy,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
-import { FadeIn } from "@/components/marketing/fade-in";
-import { ProductPreview } from "@/components/marketing/product-preview";
+import { motion } from "framer-motion";
+import { PageShell } from "@/components/app-shell/page-shell";
+import { PageContainer } from "@/components/app-shell/page-header";
 import { Button } from "@/components/ui/button";
 import { SAMPLE_PROFILE } from "@/data/sample-profile";
 import { getOpportunityRepository } from "@/lib/data";
@@ -38,43 +41,16 @@ const CATEGORIES: { category: OpportunityCategory; icon: typeof Briefcase; blurb
 ];
 
 const STEPS = [
-  {
-    title: "Build a profile once",
-    body: "Your course, year, grades, skills and projects become structured evidence. Sensitive details are optional and only stored with your consent.",
-  },
-  {
-    title: "Discover across seven categories",
-    body: "Search one catalogue of internships, scholarships, hackathons, fellowships, research, grants and workshops. Every listing shows its source and verification status.",
-  },
-  {
-    title: "See exactly why you qualify — or don't",
-    body: "Each stated requirement is compared with your profile. You get a verdict, the evidence behind it, and what is still missing.",
-  },
-  {
-    title: "Act on it",
-    body: "Save opportunities, follow concrete recommendations, and track every application from interested to accepted.",
-  },
+  { title: "Build a profile once", body: "Your course, year, grades, skills and projects become structured evidence. Sensitive details are optional and only stored with your consent." },
+  { title: "Discover across seven categories", body: "Search one catalogue of internships, scholarships, hackathons, fellowships, research, grants and workshops. Every listing shows its source and verification status." },
+  { title: "See exactly why you qualify - or don't", body: "Each stated requirement is compared with your profile. You get a verdict, the evidence behind it, and what is still missing." },
+  { title: "Act on it", body: "Save opportunities, follow concrete recommendations, and track every application from interested to accepted." },
 ];
 
 const OUTCOMES = [
-  {
-    icon: CircleCheck,
-    tone: "text-success",
-    title: "Meets stated requirements",
-    body: "Every mandatory requirement is satisfied by information in your profile.",
-  },
-  {
-    icon: CircleAlert,
-    tone: "text-warning",
-    title: "Potentially eligible / needs review",
-    body: "Something is missing from your profile or can only be confirmed against the original source.",
-  },
-  {
-    icon: CircleX,
-    tone: "text-danger",
-    title: "Does not meet stated requirements",
-    body: "At least one mandatory requirement is clearly not met — and we show which one.",
-  },
+  { icon: CircleCheck, tone: "success", title: "Meets stated requirements", body: "Every mandatory requirement is satisfied by information in your profile." },
+  { icon: CircleAlert, tone: "warning", title: "Potentially eligible / needs review", body: "Something is missing from your profile or can only be confirmed against the original source." },
+  { icon: CircleX, tone: "danger", title: "Does not meet stated requirements", body: "At least one mandatory requirement is clearly not met - and we show which one." },
 ];
 
 export default async function LandingPage() {
@@ -83,211 +59,171 @@ export default async function LandingPage() {
   const previewResult = preview ? evaluateEligibility(SAMPLE_PROFILE, preview, SERVER_REFERENCE_DATE) : null;
 
   return (
-    <>
-      <section className="relative overflow-hidden border-b border-border">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(11_27_50/0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgb(11_27_50/0.04)_1px,transparent_1px)] bg-size-[56px_56px] mask-[radial-gradient(ellipse_at_top_left,black_30%,transparent_70%)]"
-        />
-        <div className="container-page relative grid items-center gap-14 py-16 md:py-24 lg:grid-cols-[1.05fr_1fr]">
-          <div className="space-y-7">
-            <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-brand" /> Opportunity intelligence for students
-            </p>
-            <h1 className="font-display text-5xl leading-[1.02] tracking-tight text-navy md:text-6xl lg:text-[4.4rem]">
-              Know if you qualify.
-              <br />
-              <em className="text-brand">Know what to do next.</em>
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">
-              OpportunityLens brings internships, scholarships, hackathons, fellowships, research programmes,
-              grants and workshops into one place — and explains, requirement by requirement, whether your
-              profile meets them.
-            </p>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="h-11 px-5 text-[0.95rem]">
-                <a href="/onboarding">
-                  Build your profile <ArrowRight data-icon="inline-end" />
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-11 px-5 text-[0.95rem]">
-                <Link href="/opportunities">Browse opportunities</Link>
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              No account needed in demo mode. Your data stays in your browser.
-            </p>
-          </div>
-          {preview && previewResult && <ProductPreview opportunity={preview} result={previewResult} />}
-        </div>
-      </section>
-
-      <section aria-labelledby="categories-heading" className="container-page py-16 md:py-20">
-        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div className="max-w-xl space-y-3">
-            <h2 id="categories-heading" className="font-display text-3xl tracking-tight text-navy md:text-4xl">
-              One lens across every kind of opportunity
-            </h2>
-            <p className="text-muted-foreground">
-              A shared data model means the same eligibility engine works for a hackathon, a research placement
-              or a scholarship.
-            </p>
-          </div>
-          <Link href="/opportunities" className="inline-flex items-center gap-1 text-sm font-medium text-brand hover:underline">
-            Explore all <ArrowRight aria-hidden className="size-4" />
-          </Link>
-        </div>
-        <ul className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map(({ category, icon: Icon, blurb }) => (
-            <li key={category} className="bg-card">
-              <Link
-                href={`/opportunities?category=${category}`}
-                className="group flex h-full flex-col gap-3 p-5 transition-colors hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:outline-none"
-              >
-                <Icon aria-hidden className="size-5 text-brand" />
-                <span className="font-medium">{CATEGORY_PLURAL_LABELS[category]}</span>
-                <span className="text-sm text-muted-foreground">{blurb}</span>
-              </Link>
-            </li>
-          ))}
-          <li className="flex flex-col justify-center gap-2 bg-navy p-5 text-white">
-            <span className="text-sm font-medium">Built to extend</span>
-            <span className="text-sm text-white/70">New categories plug into the same requirement model.</span>
-          </li>
-        </ul>
-      </section>
-
-      <section id="how-it-works" aria-labelledby="how-heading" className="border-y border-border bg-card">
-        <div className="container-page grid gap-12 py-16 md:py-24 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="space-y-4 lg:sticky lg:top-28 lg:self-start">
-            <p className="text-sm font-medium text-brand">How it works</p>
-            <h2 id="how-heading" className="font-display text-3xl tracking-tight text-navy md:text-4xl">
-              From “am I even eligible?” to a submitted application.
-            </h2>
-            <p className="text-muted-foreground">
-              Most students lose hours reading eligibility criteria that don&apos;t apply to them. OpportunityLens
-              does the comparison for you, and shows its work.
-            </p>
-          </div>
-          <ol className="space-y-0">
-            {STEPS.map((step, index) => (
-              <li key={step.title} className="border-b border-border last:border-0">
-                <FadeIn delay={index * 0.05} className="grid grid-cols-[3rem_1fr] gap-4 py-7">
-                  <span className="font-display text-3xl text-brand tabular-nums">0{index + 1}</span>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.body}</p>
-                  </div>
-                </FadeIn>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section aria-labelledby="transparency-heading" className="container-page grid gap-12 py-16 md:py-24 lg:grid-cols-2">
-        <div className="space-y-6">
-          <h2 id="transparency-heading" className="font-display text-3xl tracking-tight text-navy md:text-4xl">
-            Three honest outcomes. Never a guess.
-          </h2>
-          <p className="text-muted-foreground">
-            Eligibility is evaluated against the provider&apos;s stated requirements. Missing information is
-            never treated as a pass, and conditions that can&apos;t be checked automatically are flagged for
-            manual review.
-          </p>
-          <ul className="space-y-4">
-            {OUTCOMES.map(({ icon: Icon, tone, title, body }) => (
-              <li key={title} className="flex gap-4">
-                <Icon aria-hidden className={`mt-0.5 size-5 shrink-0 ${tone}`} />
-                <div>
-                  <p className="font-medium">{title}</p>
-                  <p className="text-sm text-muted-foreground">{body}</p>
+    <PageShell background="space">
+      <PageContainer>
+        {/* Hero */}
+        <section className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-b from-background/60 to-background p-8 md:p-12 lg:p-16">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(34,211,238,0.08),transparent_60%)] pointer-events-none" />
+          <div className="relative grid gap-8 md:grid-cols-2 md:items-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="space-y-5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/30 px-4 py-1.5 text-xs font-medium tracking-wide text-brand/80 backdrop-blur-sm">
+                <Sparkles className="size-3" />
+                The next generation of opportunity discovery
+              </div>
+              <h1 className="font-display text-4xl leading-tight tracking-tight md:text-5xl lg:text-6xl text-gradient">
+                Know if you qualify.
+                <br />
+                Know what to do next.
+              </h1>
+              <p className="max-w-lg text-sm text-muted-foreground/90 md:text-base">
+                OpportunityLens helps students discover internships, scholarships, hackathons, fellowships, research programmes, grants and competitions - and understand, requirement by requirement, whether they qualify.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="h-11 px-6 bg-gradient-to-r from-mint to-teal text-[#03201c]">
+                  <Link href="/onboarding">Create your profile <ArrowRight className="ml-2 size-4" /></Link>
+                </Button>
+                <Button asChild size="lg" variant="ghost" className="h-11 px-6 border-border/50 bg-background/30">
+                  <a href="/app">Open dashboard <ExternalLink className="ml-2 size-4" /></a>
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-4 border-t border-border/30 pt-4 text-xs text-muted-foreground/70">
+                <span className="flex items-center gap-1.5"><Shield className="size-3" /> Demo data - clear labels</span>
+                <span className="flex items-center gap-1.5"><BadgeCheck className="size-3" /> No real applications</span>
                 </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="space-y-6 rounded-lg border border-border bg-card p-6 md:p-8">
-          <div className="flex items-center gap-3">
-            <BadgeCheck aria-hidden className="size-5 text-brand" />
-            <h3 className="text-lg font-semibold">Source transparency</h3>
+            </motion.div>
+            {preview && previewResult && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="relative flex items-center justify-center">
+                <div className="glass-card relative w-full max-w-md p-6">
+                  <div className="flex items-center gap-3 pb-3 border-b border-border/30">
+                    <div className="flex gap-1.5">
+                      <div className="h-3 w-3 rounded-full bg-red-400/60" />
+                      <div className="h-3 w-3 rounded-full bg-yellow-400/60" />
+                      <div className="h-3 w-3 rounded-full bg-green-400/60" />
+                    </div>
+                    <span className="text-xs text-muted-foreground">opportunity-lens.app</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 rounded-lg bg-background/50 p-3">
+                      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-mint to-teal flex items-center justify-center text-white text-sm">
+                        <Briefcase className="size-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-foreground/90 truncate">{preview.title}</p>
+                        <p className="text-xs text-muted-foreground/70 truncate">{preview.providerName}</p>
+                      </div>
+                      <span className="rounded-full bg-mint/20 px-2.5 py-1 text-xs font-medium text-mint/80">
+                        {previewResult.outcome}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-lg bg-background/50 p-3 text-center">
+                        <p className="text-xl font-bold text-foreground/90">{previewResult.counts.met}</p>
+                        <p className="text-xs text-muted-foreground/70">Meets</p>
+                      </div>
+                      <div className="rounded-lg bg-background/50 p-3 text-center">
+                        <p className="text-xl font-bold text-foreground/90">{previewResult.counts.not_met}</p>
+                        <p className="text-xs text-muted-foreground/70">Review</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </div>
-          <p className="text-muted-foreground">
-            Every published listing links to its original source and shows when it was last verified. Listings
-            that can&apos;t be verified are labelled — never presented as confirmed.
-          </p>
-          <div className="space-y-3 border-t border-border pt-6">
-            <div className="flex items-center gap-3">
-              <FlaskConical aria-hidden className="size-5 text-warning" />
-              <h3 className="text-lg font-semibold">Demo data is always labelled</h3>
-            </div>
-            <p className="text-muted-foreground">
-              This hackathon build ships with fictional sample listings so you can try the full journey. They
-              carry a “Demo data” badge everywhere and have no real application links.
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section id="ai-analysis" aria-labelledby="ai-heading" className="border-t border-border bg-navy text-white">
-        <div className="container-page grid gap-10 py-16 md:py-20 lg:grid-cols-[1.2fr_1fr] lg:items-center">
-          <div className="space-y-5">
-            <p className="inline-flex items-center gap-2 text-sm font-medium text-[#5eead4]">
-              <Sparkles aria-hidden className="size-4" /> Generative AI analysis
-            </p>
-            <h2 id="ai-heading" className="font-display text-3xl tracking-tight md:text-4xl">
-              Go deeper with our Amazon PartyRock app.
-            </h2>
-            <p className="text-white/75">
-              Paste an opportunity description and your background into our PartyRock app for AI-generated
-              guidance on your fit and how to prepare. It runs on Amazon PartyRock in a separate tab — nothing
-              from this site is sent automatically, and the output is guidance, not an eligibility decision.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg" className="h-11 bg-[#2dd4bf] px-5 text-[#03201c] hover:bg-[#5eead4]">
-                <a href="/app/ai-analysis">
-                  Learn about AI analysis <ArrowRight data-icon="inline-end" />
-                </a>
+        {/* Categories */}
+        <section className="mt-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }}>
+            <h2 className="font-display text-2xl tracking-tight md:text-3xl text-gradient">Seven paths to your next step</h2>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground/90">Every opportunity is evaluated against your profile, so you know exactly where you stand.</p>
+          </motion.div>
+          <motion.div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+            {CATEGORIES.map(({ category, icon: Icon, blurb }) => (
+              <div key={category} className="glass-card p-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex gap-1.5 rounded-lg bg-background/50 p-2.5">
+                    <Icon className="size-4 text-brand" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground/90 truncate">{CATEGORY_PLURAL_LABELS[category]}</p>
+                    <p className="text-xs text-muted-foreground/70 truncate">{blurb}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* How it works */}
+        <section className="mt-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.5 }}>
+            <h2 className="font-display text-2xl tracking-tight md:text-3xl text-gradient">From profile to path in four steps</h2>
+          </motion.div>
+          <motion.div className="mt-8 grid gap-6 md:grid-cols-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
+            {STEPS.map((step, index) => (
+              <div key={step.title} className="glass-card p-6">
+                <div className={`absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${(index % 2 === 0 ? "bg-mint/20" : "bg-teal/20")}`}>
+                  {index + 1}
+                </div>
+                <h3 className="font-medium text-foreground/90">{step.title}</h3>
+                <p className="mt-1 text-xs text-muted-foreground/70">{step.body}</p>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* Outcomes */}
+        <section className="mt-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.7 }}>
+            <h2 className="font-display text-2xl tracking-tight md:text-3xl text-gradient">Know exactly where you stand</h2>
+          </motion.div>
+          <motion.div className="mt-6 grid gap-4 md:grid-cols-3" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.8 }}>
+            {OUTCOMES.map(({ icon: Icon, tone, title, body: desc }) => (
+              <div key={title} className="glass-card p-6">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-full ${tone === "success" ? "bg-success/20" : tone === "warning" ? "bg-warning/20" : "bg-danger/20"} text-${tone === "success" ? "success" : tone === "warning" ? "warning" : "danger"}/60`}>
+                  <Icon className="size-5" />
+                </div>
+                <h3 className="mt-4 font-medium text-foreground/90">{title}</h3>
+                <p className="mt-1 text-xs text-muted-foreground/70">{desc}</p>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* CTA */}
+        <section className="mt-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.9 }} className="glass-card rounded-2xl p-8 md:p-10 text-center">
+            <h2 className="font-display text-2xl tracking-tight md:text-3xl text-gradient">Ready to discover what you qualify for?</h2>
+            <p className="mt-3 max-w-lg mx-auto text-sm text-muted-foreground/90">Build a profile in about three minutes. Every eligibility check gets sharper as you add detail.</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="h-11 px-6 bg-gradient-to-r from-mint to-teal text-[#03201c]">
+                <Link href="/onboarding">Create your profile <ArrowRight className="ml-2 size-4" /></Link>
+              </Button>
+              <Button asChild size="lg" variant="ghost" className="h-11 px-6 border-border/50 bg-background/30">
+                <a href="/app">Open dashboard <ExternalLink className="ml-2 size-4" /></a>
               </Button>
             </div>
-          </div>
-          <ul className="space-y-3 text-sm text-white/80">
-            {[
-              "Rules engine on this site: deterministic, explainable, instant.",
-              "PartyRock app: open-ended generative guidance on the text you provide.",
-              "Planned: Amazon Bedrock-powered analysis inside OpportunityLens.",
-            ].map((line) => (
-              <li key={line} className="flex gap-3 border-b border-white/10 pb-3 last:border-0">
-                <Lightbulb aria-hidden className="mt-0.5 size-4 shrink-0 text-[#5eead4]" />
-                {line}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+          </motion.div>
+        </section>
 
-      <section className="container-page py-16 md:py-24">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-lg border border-border bg-card p-8 md:flex-row md:items-center md:p-10">
-          <div className="space-y-2">
-            <h2 className="font-display text-3xl tracking-tight text-navy">Start with your profile.</h2>
-            <p className="text-muted-foreground">
-              It takes about three minutes, and every eligibility check gets sharper as you add detail.
-            </p>
+        {/* Footer */}
+        <footer className="mt-12 border-t border-border/50 pt-8">
+          <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground/70">
+              <Sparkles className="size-4 text-brand" />
+              <span className="font-medium text-foreground/80">OpportunityLens</span>
+              <span className="hidden sm:inline">·</span>
+              <span>Demo build - all data is fictional.</span>
+            </div>
+            <div className="flex gap-4 text-sm text-muted-foreground/60">
+              <a href="/about" className="hover:text-foreground/90 transition-colors">About</a>
+              <a href="/app" className="hover:text-foreground/90 transition-colors">Dashboard</a>
+              <a href="/app/ai-analysis" className="hover:text-foreground/90 transition-colors">AI Analysis</a>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg" className="h-11 px-5">
-              <a href="/onboarding">
-                Create your profile <ArrowRight data-icon="inline-end" />
-              </a>
-            </Button>
-            <Button asChild size="lg" variant="ghost" className="h-11 px-5">
-              <a href="/app">
-                Open dashboard <ExternalLink data-icon="inline-end" />
-              </a>
-            </Button>
-          </div>
-        </div>
-      </section>
-    </>
+        </footer>
+      </PageContainer>
+    </PageShell>
   );
 }
