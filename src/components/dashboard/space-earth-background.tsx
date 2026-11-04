@@ -3,12 +3,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-interface Star {
-  mesh: THREE.Points;
-  velocity: number;
-  baseZ: number;
-}
-
 export function SpaceEarthBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -17,13 +11,13 @@ export function SpaceEarthBackground() {
     if (!canvas) return;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050a15, 0.02);
+    scene.fog = new THREE.FogExp2(0x050a15, 0.0018);
 
     const camera = new THREE.PerspectiveCamera(
       55,
       canvas.clientWidth / canvas.clientHeight,
       0.1,
-      2000,
+      2500,
     );
     camera.position.z = 600;
 
@@ -36,29 +30,28 @@ export function SpaceEarthBackground() {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.7);
     scene.add(ambientLight);
 
-    // Mint accent light
-    const mintLight = new THREE.PointLight(0x22d3ee, 0.8, 1000);
+    const mintLight = new THREE.PointLight(0x22d3ee, 0.9, 1200);
     mintLight.position.set(200, 100, 300);
     scene.add(mintLight);
 
-    const tealLight = new THREE.PointLight(0x2dd4bf, 0.6, 1000);
+    const tealLight = new THREE.PointLight(0x2dd4bf, 0.7, 1200);
     tealLight.position.set(-200, -100, 300);
     scene.add(tealLight);
 
     // Starfield
-    const starCount = 1500;
+    const starCount = 1600;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
     const starVelocities: number[] = [];
 
     for (let i = 0; i < starCount; i++) {
-      starPositions[i * 3] = (Math.random() - 0.5) * 2000;
-      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1000;
-      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+      starPositions[i * 3] = (Math.random() - 0.5) * 2200;
+      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 1400;
+      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 2200;
       starVelocities.push((Math.random() - 0.5) * 0.5);
     }
 
@@ -70,38 +63,51 @@ export function SpaceEarthBackground() {
       color: 0xffffff,
       size: 1.5,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.65,
       sizeAttenuation: true,
     });
     const stars = new THREE.Points(starGeometry, starMaterial);
     scene.add(stars);
 
-    // Central "Earth" sphere with glow
+    // Earth group
     const earthGroup = new THREE.Group();
-    const earthGeo = new THREE.SphereGeometry(60, 32, 32);
+    const earthGeo = new THREE.SphereGeometry(62, 36, 36);
     const earthMat = new THREE.MeshStandardMaterial({
       color: 0x0b1b32,
       emissive: 0x22d3ee,
-      emissiveIntensity: 0.4,
-      roughness: 0.3,
-      metalness: 0.1,
+      emissiveIntensity: 0.45,
+      roughness: 0.35,
+      metalness: 0.15,
     });
     const earth = new THREE.Mesh(earthGeo, earthMat);
     earthGroup.add(earth);
 
-    // Glow ring around earth
-    const glowGeo = new THREE.SphereGeometry(65, 32, 32);
+    // Glow ring
+    const glowGeo = new THREE.SphereGeometry(67, 36, 36);
     const glowMat = new THREE.MeshBasicMaterial({
       color: 0x2dd4bf,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.16,
       side: THREE.BackSide,
     });
     const glow = new THREE.Mesh(glowGeo, glowMat);
     earthGroup.add(glow);
+
+    // Orbital ring
+    const ringGeo = new THREE.RingGeometry(85, 87, 64);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x22d3ee,
+      transparent: true,
+      opacity: 0.22,
+      side: THREE.DoubleSide,
+    });
+    const orbitRing = new THREE.Mesh(ringGeo, ringMat);
+    orbitRing.rotation.x = Math.PI / 2.5;
+    earthGroup.add(orbitRing);
+
     scene.add(earthGroup);
 
-    // Radar ping effect
+    // Radar ping
     const pingGeo = new THREE.RingGeometry(55, 65, 64);
     const pingMat = new THREE.MeshBasicMaterial({
       color: 0x22d3ee,
@@ -115,57 +121,94 @@ export function SpaceEarthBackground() {
 
     let mouseX = 0;
     let mouseY = 0;
-
     const handleMouseMove = (event: MouseEvent) => {
       mouseX = (event.clientX / window.innerWidth) * 2 - 1;
       mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    let targetScrollY = typeof window !== "undefined" ? window.scrollY : 0;
+    let currentScrollY = targetScrollY;
+    let prevScrollY = targetScrollY;
+    let scrollVelocity = 0;
+
+    const handleScroll = () => {
+      targetScrollY = window.scrollY;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const clock = new THREE.Clock();
     let pingRadius = 55;
     let pingOpacity = 0;
     let pingGrowing = false;
+    let animationFrameId: number;
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
 
       const elapsed = clock.getElapsedTime();
 
-      // Camera drift with mouse
-      camera.position.x += (mouseX * 100 - camera.position.x) * 0.05;
-      camera.position.y += (mouseY * 80 - camera.position.y) * 0.05;
-      camera.lookAt(scene.position);
+      // Smooth scroll lerping
+      currentScrollY += (targetScrollY - currentScrollY) * 0.08;
+      scrollVelocity = currentScrollY - prevScrollY;
+      prevScrollY = currentScrollY;
 
-      // Rotate earth slowly
-      earthGroup.rotation.y += 0.002;
-      earthGroup.rotation.x = Math.sin(elapsed * 0.1) * 0.05;
+      const docHeight = Math.max(
+        1,
+        (document.documentElement.scrollHeight || 1000) - window.innerHeight,
+      );
+      const scrollRatio = Math.min(1, Math.max(0, currentScrollY / docHeight));
 
-      // Animate stars (parallax drift)
+      // Scroll-driven camera dynamics
+      const targetCamZ = 600 - scrollRatio * 180;
+      const targetCamY = mouseY * 70 - scrollRatio * 80;
+      const targetCamX = mouseX * 90;
+
+      camera.position.z += (targetCamZ - camera.position.z) * 0.06;
+      camera.position.y += (targetCamY - camera.position.y) * 0.06;
+      camera.position.x += (targetCamX - camera.position.x) * 0.06;
+
+      const targetLookY = -scrollRatio * 40;
+      camera.lookAt(0, targetLookY, 0);
+
+      // Earth rotation and scroll-reactive orientation
+      const activeSpinBonus = Math.abs(scrollVelocity) * 0.002;
+      earthGroup.rotation.y += 0.0025 + activeSpinBonus;
+      earthGroup.rotation.x =
+        Math.sin(elapsed * 0.2) * 0.05 + scrollRatio * 0.45;
+      earthGroup.position.y = -scrollRatio * 60;
+      orbitRing.rotation.z += 0.001;
+
+      // Stars responsive stream / warp on scroll
       const positions = starGeometry.attributes.position.array as Float32Array;
+      const streamVelocity = scrollVelocity * 0.55;
+
       for (let i = 0; i < starCount; i++) {
-        positions[i * 3 + 2] += starVelocities[i];
-        if (positions[i * 3 + 2] > 1000) positions[i * 3 + 2] -= 2000;
-        if (positions[i * 3 + 2] < -1000) positions[i * 3 + 2] += 2000;
+        positions[i * 3 + 2] += starVelocities[i] + streamVelocity;
+        if (positions[i * 3 + 2] > 1100) positions[i * 3 + 2] -= 2200;
+        if (positions[i * 3 + 2] < -1100) positions[i * 3 + 2] += 2200;
       }
       starGeometry.attributes.position.needsUpdate = true;
 
-      // Radar ping pulse
-      if (!pingGrowing && Math.random() < 0.01) {
+      // Radar ping pulse (reacts also to active scroll)
+      const triggerChance = Math.abs(scrollVelocity) > 2 ? 0.04 : 0.008;
+      if (!pingGrowing && Math.random() < triggerChance) {
         pingGrowing = true;
         pingRadius = 55;
         pingOpacity = 0.5;
+        ping.position.y = earthGroup.position.y;
       }
+
       if (pingGrowing) {
-        pingRadius += 2;
+        pingRadius += 2.2;
         pingOpacity -= 0.02;
         if (pingOpacity <= 0) {
           pingGrowing = false;
           pingOpacity = 0;
         }
         ping.scale.set(pingRadius / 55, pingRadius / 55, 1);
-        ping.material.opacity = Math.max(0, pingOpacity);
+        pingMat.opacity = Math.max(0, pingOpacity);
       }
 
       renderer.render(scene, camera);
@@ -182,14 +225,19 @@ export function SpaceEarthBackground() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+
       renderer.dispose();
       scene.remove(ambientLight, mintLight, tealLight, stars, earthGroup, ping);
       earthGeo.dispose();
       earthMat.dispose();
       glowGeo.dispose();
       glowMat.dispose();
+      ringGeo.dispose();
+      ringMat.dispose();
       pingGeo.dispose();
       pingMat.dispose();
       starGeometry.dispose();

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageShell } from "@/components/app-shell/page-shell";
 import { SITE_TAGLINE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -35,64 +36,66 @@ const ARCHITECTURE = [
 
 export default function AboutPage() {
   return (
-    <div className="container-page space-y-20 py-14 md:py-20">
-      <header className="max-w-3xl space-y-5">
-        <p className="text-sm font-medium text-brand">About OpportunityLens</p>
-        <h1 className="font-display text-4xl tracking-tight text-navy md:text-6xl">{SITE_TAGLINE}</h1>
-        <p className="text-lg leading-relaxed text-muted-foreground">
-          Students miss opportunities not because they aren&apos;t qualified, but because eligibility criteria are
-          scattered, dense and inconsistent. OpportunityLens brings internships, scholarships, hackathons,
-          fellowships, research programmes, grants and workshops into one model — and explains, transparently,
-          where each student stands and what to do next.
-        </p>
-      </header>
-
-      <section id="data-principles" aria-labelledby="principles-heading" className="scroll-mt-24 space-y-8">
-        <h2 id="principles-heading" className="font-display text-3xl tracking-tight text-navy">
-          Data principles
-        </h2>
-        <dl className="grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2">
-          {PRINCIPLES.map((principle) => (
-            <div key={principle.title} className="space-y-2 bg-card p-6">
-              <dt className="font-semibold">{principle.title}</dt>
-              <dd className="text-muted-foreground">{principle.body}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <section id="architecture" aria-labelledby="architecture-heading" className="scroll-mt-24 space-y-8">
-        <div className="max-w-2xl space-y-3">
-          <h2 id="architecture-heading" className="font-display text-3xl tracking-tight text-navy">
-            How it&apos;s built
-          </h2>
-          <p className="text-muted-foreground">
-            This hackathon build runs entirely without external credentials. The data layer sits behind a repository
-            interface so Supabase — and later AWS — can replace the demo provider without changing the UI.
+    <PageShell background="fluid">
+      <div className="container-page space-y-20 py-14 md:py-20">
+        <header className="max-w-3xl space-y-5">
+          <p className="text-sm font-medium text-brand">About OpportunityLens</p>
+          <h1 className="font-display text-4xl tracking-tight text-gradient md:text-6xl">{SITE_TAGLINE}</h1>
+          <p className="text-lg leading-relaxed text-muted-foreground">
+            Students miss opportunities not because they aren&apos;t qualified, but because eligibility criteria are
+            scattered, dense and inconsistent. OpportunityLens brings internships, scholarships, hackathons,
+            fellowships, research programmes, grants and workshops into one model — and explains, transparently,
+            where each student stands and what to do next.
           </p>
-        </div>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <table className="w-full min-w-[40rem] text-left text-sm">
-            <caption className="sr-only">Current and planned architecture</caption>
-            <thead className="bg-muted/60 text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-5 py-3 font-medium">Layer</th>
-                <th scope="col" className="px-5 py-3 font-medium">Hackathon build</th>
-                <th scope="col" className="px-5 py-3 font-medium">Production direction</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border bg-card">
-              {ARCHITECTURE.map((row) => (
-                <tr key={row.layer}>
-                  <th scope="row" className="px-5 py-3.5 font-medium">{row.layer}</th>
-                  <td className="px-5 py-3.5 text-muted-foreground">{row.now}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{row.later}</td>
+        </header>
+
+        <section id="data-principles" aria-labelledby="principles-heading" className="scroll-mt-24 space-y-8">
+          <h2 id="principles-heading" className="font-display text-3xl tracking-tight text-foreground">
+            Data principles
+          </h2>
+          <dl className="grid gap-4 md:grid-cols-2">
+            {PRINCIPLES.map((principle) => (
+              <div key={principle.title} className="glass-card space-y-2 p-6">
+                <dt className="font-semibold text-foreground">{principle.title}</dt>
+                <dd className="text-muted-foreground text-sm leading-relaxed">{principle.body}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section id="architecture" aria-labelledby="architecture-heading" className="scroll-mt-24 space-y-8">
+          <div className="max-w-2xl space-y-3">
+            <h2 id="architecture-heading" className="font-display text-3xl tracking-tight text-foreground">
+              How it&apos;s built
+            </h2>
+            <p className="text-muted-foreground">
+              This hackathon build runs entirely without external credentials. The data layer sits behind a repository
+              interface so Supabase — and later AWS — can replace the demo provider without changing the UI.
+            </p>
+          </div>
+          <div className="overflow-x-auto rounded-xl border border-border/50 glass-card p-0">
+            <table className="w-full min-w-[40rem] text-left text-sm">
+              <caption className="sr-only">Current and planned architecture</caption>
+              <thead className="bg-muted/60 text-muted-foreground border-b border-border/50">
+                <tr>
+                  <th scope="col" className="px-5 py-3.5 font-medium">Layer</th>
+                  <th scope="col" className="px-5 py-3.5 font-medium">Hackathon build</th>
+                  <th scope="col" className="px-5 py-3.5 font-medium">Production direction</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {ARCHITECTURE.map((row) => (
+                  <tr key={row.layer} className="hover:bg-brand/5 transition-colors">
+                    <th scope="row" className="px-5 py-3.5 font-medium text-foreground">{row.layer}</th>
+                    <td className="px-5 py-3.5 text-muted-foreground">{row.now}</td>
+                    <td className="px-5 py-3.5 text-muted-foreground">{row.later}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </PageShell>
   );
 }

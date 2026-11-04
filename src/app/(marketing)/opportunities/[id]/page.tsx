@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { PageShell } from "@/components/app-shell/page-shell";
 import { OpportunityDetail } from "@/components/opportunities/opportunity-detail";
 import { getOpportunityRepository } from "@/lib/data";
 
-// Unknown slugs must wait for the full render so notFound() can return a real 404.
-export const ensureStatic = "navigation";
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
 
 export async function generateStaticParams() {
   const opportunities = await getOpportunityRepository().listPublished();
   return opportunities.map((opportunity) => ({ id: opportunity.slug }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/opportunities/[id]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const opportunity = await getOpportunityRepository().getBySlug(id);
   if (!opportunity) return { title: "Opportunity not found" };
@@ -21,14 +23,16 @@ export async function generateMetadata({ params }: PageProps<"/opportunities/[id
   };
 }
 
-export default async function OpportunityPage({ params }: PageProps<"/opportunities/[id]">) {
+export default async function OpportunityPage({ params }: PageProps) {
   const { id } = await params;
   const opportunity = await getOpportunityRepository().getBySlug(id);
   if (!opportunity) notFound();
 
   return (
-    <div className="container-page py-10 md:py-14">
-      <OpportunityDetail opportunity={opportunity} backHref="/opportunities" backLabel="All opportunities" />
-    </div>
+    <PageShell background="space">
+      <div className="container-page py-10 md:py-14">
+        <OpportunityDetail opportunity={opportunity} backHref="/opportunities" backLabel="All opportunities" />
+      </div>
+    </PageShell>
   );
 }

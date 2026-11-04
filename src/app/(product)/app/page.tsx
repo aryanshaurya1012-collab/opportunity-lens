@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageShell } from "@/components/app-shell/page-shell";
-import { PageContainer, PageHeader } from "@/components/app-shell/page-header";
+import { PageContainer } from "@/components/app-shell/page-header";
 import { Dashboard } from "@/components/dashboard/dashboard";
 import { getOpportunityRepository } from "@/lib/data";
 
@@ -11,11 +11,6 @@ export default async function DashboardPage() {
   return (
     <PageShell background="space">
       <PageContainer>
-        <PageHeader
-          eyebrow="Dashboard"
-          title="Welcome back"
-          description="Your command center for discovering, tracking, and managing opportunities."
-        />
         <Dashboard opportunities={opportunities} />
       </PageContainer>
     </PageShell>

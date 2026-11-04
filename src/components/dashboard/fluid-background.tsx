@@ -3,6 +3,11 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
+interface LineUserData {
+  velocities: number[];
+  phases: number[];
+}
+
 export function FluidBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -19,7 +24,7 @@ export function FluidBackground() {
       0.1,
       1000,
     );
-    camera.position.z = 4;
+    camera.position.z = 4.2;
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
@@ -31,17 +36,21 @@ export function FluidBackground() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     // Ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.35);
     scene.add(ambientLight);
 
     // Subtle accent light
-    const accentLight = new THREE.PointLight(0x22d3ee, 0.5, 20);
+    const accentLight = new THREE.PointLight(0x22d3ee, 0.6, 25);
     accentLight.position.set(2, 2, 4);
     scene.add(accentLight);
 
+    const accentLight2 = new THREE.PointLight(0x2dd4bf, 0.4, 25);
+    accentLight2.position.set(-2, -2, 3);
+    scene.add(accentLight2);
+
     // Fluid-like line geometry
     const pointCount = 200;
-    const lineCount = 15;
+    const lineCount = 18;
     const lineGroups: THREE.Line[] = [];
 
     for (let l = 0; l < lineCount; l++) {
@@ -50,65 +59,101 @@ export function FluidBackground() {
       const velocities: number[] = [];
       const phases: number[] = [];
 
+      const layerOffset = (l / lineCount - 0.5) * 3;
+
       for (let i = 0; i < pointCount; i++) {
         const t = i / (pointCount - 1);
-        positions[i * 3] = (t - 0.5) * 8;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 2;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 4;
-        velocities.push((Math.random() - 0.5) * 0.01);
+        positions[i * 3] = (t - 0.5) * 9;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 1.5 + layerOffset * 0.3;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 3 + layerOffset;
+        velocities.push((Math.random() - 0.5) * 0.008);
         phases.push(Math.random() * Math.PI * 2);
       }
 
       geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
       const material = new THREE.LineBasicMaterial({
-        color: 0x2dd4bf,
+        color: l % 2 === 0 ? 0x2dd4bf : 0x22d3ee,
         transparent: true,
-        opacity: 0.25,
+        opacity: 0.22 + (l / lineCount) * 0.12,
       });
       const line = new THREE.Line(geometry, material);
-      (line as any).userData = { velocities, phases, positions };
+      const userData: LineUserData = { velocities, phases };
+      line.userData = userData;
       scene.add(line);
       lineGroups.push(line);
     }
 
     let mouseX = 0;
     let mouseY = 0;
-
     const handleMouseMove = (event: MouseEvent) => {
       mouseX = (event.clientX / window.innerWidth) * 2 - 1;
       mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    let targetScrollY = typeof window !== "undefined" ? window.scrollY : 0;
+    let currentScrollY = targetScrollY;
+    let prevScrollY = targetScrollY;
+    let scrollVelocity = 0;
+
+    const handleScroll = () => {
+      targetScrollY = window.scrollY;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const clock = new THREE.Clock();
+    let animationFrameId: number;
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
 
       const elapsed = clock.getElapsedTime();
 
-      // Gentle camera drift
-      camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
-      camera.position.y += (mouseY * 0.4 - camera.position.y) * 0.05;
-      camera.lookAt(scene.position);
+      // Smooth scroll lerping
+      currentScrollY += (targetScrollY - currentScrollY) * 0.08;
+      scrollVelocity = currentScrollY - prevScrollY;
+      prevScrollY = currentScrollY;
 
-      // Animate fluid lines
+      const docHeight = Math.max(
+        1,
+        (document.documentElement.scrollHeight || 1000) - window.innerHeight,
+      );
+      const scrollRatio = Math.min(1, Math.max(0, currentScrollY / docHeight));
+
+      // Scroll and mouse reactive camera
+      const targetCamX = mouseX * 0.45;
+      const targetCamY = mouseY * 0.35 - scrollRatio * 1.2;
+      const targetCamZ = 4.2 - scrollRatio * 0.8;
+
+      camera.position.x += (targetCamX - camera.position.x) * 0.05;
+      camera.position.y += (targetCamY - camera.position.y) * 0.05;
+      camera.position.z += (targetCamZ - camera.position.z) * 0.05;
+
+      camera.lookAt(0, -scrollRatio * 0.6, 0);
+
+      // Animate fluid lines with scroll speed responsiveness
+      const activeWaveBonus = Math.abs(scrollVelocity) * 0.012;
+      const waveSpeed = 0.6 + activeWaveBonus;
+
       for (const line of lineGroups) {
-        const { velocities, phases, positions } = (line as any).userData;
+        const { velocities, phases } = line.userData as LineUserData;
         const posAttr = line.geometry.attributes.position as THREE.BufferAttribute;
         const arr = posAttr.array as Float32Array;
 
         for (let i = 0; i < pointCount; i++) {
           arr[i * 3 + 1] += velocities[i];
           arr[i * 3 + 1] +=
-            Math.sin(elapsed * 0.5 + phases[i] + arr[i * 3] * 0.5) * 0.005;
+            Math.sin(elapsed * waveSpeed + phases[i] + arr[i * 3] * 0.6) *
+            (0.004 + activeWaveBonus * 0.3);
           arr[i * 3 + 2] +=
-            Math.cos(elapsed * 0.3 + phases[i]) * 0.003;
+            Math.cos(elapsed * 0.35 + phases[i]) * 0.003 - scrollVelocity * 0.0015;
 
-          // Wrap around
-          if (arr[i * 3 + 1] > 1) arr[i * 3 + 1] = -1;
-          if (arr[i * 3 + 1] < -1) arr[i * 3 + 1] = 1;
+          // Wrap around in boundaries
+          if (arr[i * 3 + 1] > 1.8) arr[i * 3 + 1] = -1.8;
+          if (arr[i * 3 + 1] < -1.8) arr[i * 3 + 1] = 1.8;
+          if (arr[i * 3 + 2] > 3) arr[i * 3 + 2] = -3;
+          if (arr[i * 3 + 2] < -3) arr[i * 3 + 2] = 3;
         }
 
         posAttr.needsUpdate = true;
@@ -128,10 +173,13 @@ export function FluidBackground() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+
       renderer.dispose();
-      scene.remove(ambientLight, accentLight, ...lineGroups);
+      scene.remove(ambientLight, accentLight, accentLight2, ...lineGroups);
       for (const line of lineGroups) {
         line.geometry.dispose();
         (line.material as THREE.Material).dispose();

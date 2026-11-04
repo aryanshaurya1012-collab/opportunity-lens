@@ -86,32 +86,60 @@ export function ThreeDashboardBackground() {
 
     let mouseX = 0;
     let mouseY = 0;
-
     const handleMouseMove = (event: MouseEvent) => {
       mouseX = (event.clientX / window.innerWidth) * 2 - 1;
       mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    let targetScrollY = typeof window !== "undefined" ? window.scrollY : 0;
+    let currentScrollY = targetScrollY;
+    let prevScrollY = targetScrollY;
+    let scrollVelocity = 0;
+
+    const handleScroll = () => {
+      targetScrollY = window.scrollY;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
     const clock = new THREE.Clock();
+    let animationFrameId: number;
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
 
       const elapsed = clock.getElapsedTime();
 
-      camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
-      camera.position.y += (mouseY * 1.5 - camera.position.y) * 0.05;
-      camera.lookAt(scene.position);
+      // Smooth scroll lerping
+      currentScrollY += (targetScrollY - currentScrollY) * 0.08;
+      scrollVelocity = currentScrollY - prevScrollY;
+      prevScrollY = currentScrollY;
+
+      const docHeight = Math.max(
+        1,
+        (document.documentElement.scrollHeight || 1000) - window.innerHeight,
+      );
+      const scrollRatio = Math.min(1, Math.max(0, currentScrollY / docHeight));
+
+      const targetCamX = mouseX * 2;
+      const targetCamY = mouseY * 1.5 - scrollRatio * 3.5;
+      const targetCamZ = 12 - scrollRatio * 3;
+
+      camera.position.x += (targetCamX - camera.position.x) * 0.05;
+      camera.position.y += (targetCamY - camera.position.y) * 0.05;
+      camera.position.z += (targetCamZ - camera.position.z) * 0.05;
+      camera.lookAt(scene.position.x, scene.position.y - scrollRatio * 2, scene.position.z);
+
+      const scrollImpulse = Math.abs(scrollVelocity) * 0.003;
 
       const positions: number[] = [];
       for (const p of particles) {
         p.mesh.position.x += p.velocity.x;
-        p.mesh.position.y += p.velocity.y;
+        p.mesh.position.y += p.velocity.y - scrollVelocity * 0.001;
         p.mesh.position.z += p.velocity.z;
 
-        p.mesh.position.y += Math.sin(elapsed + p.mesh.position.x) * 0.003;
+        p.mesh.position.y += Math.sin(elapsed + p.mesh.position.x) * (0.003 + scrollImpulse);
         p.mesh.position.x += Math.cos(elapsed + p.mesh.position.y) * 0.002;
 
         if (p.mesh.position.x > 10) p.mesh.position.x = -10;
@@ -119,7 +147,7 @@ export function ThreeDashboardBackground() {
         if (p.mesh.position.y > 6) p.mesh.position.y = -6;
         if (p.mesh.position.y < -6) p.mesh.position.y = 6;
         if (p.mesh.position.z > 10) p.mesh.position.z = -10;
-        if (p.mesh.position.z < -10) p.mesh.position.z = -10;
+        if (p.mesh.position.z < -10) p.mesh.position.z = 10;
 
         const scale = 1 + Math.sin(elapsed * 2 + p.mesh.position.x) * 0.15;
         p.mesh.scale.set(scale, scale, scale);
@@ -172,8 +200,11 @@ export function ThreeDashboardBackground() {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
+
       renderer.dispose();
       scene.remove(accentLight);
       scene.remove(accentLight2);
@@ -181,7 +212,7 @@ export function ThreeDashboardBackground() {
       for (const p of particles) {
         p.mesh.geometry.dispose();
       }
-      (material as THREE.Material).dispose();
+      material.dispose();
       lineGeometry.dispose();
       lineMaterial.dispose();
     };

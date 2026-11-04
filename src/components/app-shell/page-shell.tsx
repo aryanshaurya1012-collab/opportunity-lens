@@ -3,9 +3,10 @@
 import { type ReactNode } from "react";
 import { SpaceEarthBackground } from "@/components/dashboard/space-earth-background";
 import { FluidBackground } from "@/components/dashboard/fluid-background";
+import { ThreeDashboardBackground } from "@/components/dashboard/three-dashboard-background";
 import { cn } from "@/lib/utils";
 
-type BackgroundType = "space" | "fluid" | "none";
+export type BackgroundType = "space" | "fluid" | "network" | "none";
 
 interface PageShellProps {
   children: ReactNode;
@@ -19,9 +20,13 @@ export function PageShell({
   className,
 }: PageShellProps) {
   const BackgroundComponent =
-    background === "space" ? SpaceEarthBackground :
-    background === "fluid" ? FluidBackground :
-    null;
+    background === "space"
+      ? SpaceEarthBackground
+      : background === "fluid"
+        ? FluidBackground
+        : background === "network"
+          ? ThreeDashboardBackground
+          : null;
 
   return (
     <div className={cn("relative min-h-svh", className)}>
