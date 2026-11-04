@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Saved" };
 export default async function SavedPage() {
   const opportunities = await getOpportunityRepository().listPublished();
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <PageContainer>
         <PageHeader eyebrow="Saved" title="Saved opportunities" description="Opportunities you've bookmarked, with your current eligibility for each." />
         <SavedList opportunities={opportunities} />

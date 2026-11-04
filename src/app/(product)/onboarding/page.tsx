@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageShell } from "@/components/app-shell/page-shell";
+import { FluidBackground } from "@/components/dashboard/fluid-background";
 import { Logo } from "@/components/shared/logo";
 import { ProfileEditor } from "@/components/profile/profile-editor";
 import { getOpportunityRepository } from "@/lib/data";
@@ -11,7 +11,17 @@ export default async function OnboardingPage() {
   const suggestions = catalogueVocabulary(await getOpportunityRepository().listPublished());
 
   return (
-    <PageShell background="fluid">
+    <div className="relative min-h-svh w-full">
+      {/* Isolated teal wireframe background strictly for the Profile Onboarding experience */}
+      <div
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <div className="sticky top-0 h-svh w-full overflow-hidden">
+          <FluidBackground />
+        </div>
+      </div>
+
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 md:px-6">
           <Logo href="/" />
@@ -24,7 +34,7 @@ export default async function OnboardingPage() {
         </div>
       </header>
 
-      <main id="main" className="mx-auto w-full max-w-3xl px-4 py-10 md:px-6 md:py-12 space-y-8">
+      <main id="main" className="relative z-10 mx-auto w-full max-w-3xl px-4 py-10 md:px-6 md:py-12 space-y-8 pb-20">
         <div className="space-y-2">
           <p className="text-xs font-semibold tracking-wider text-brand uppercase">Student Onboarding</p>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl text-foreground">
@@ -37,6 +47,6 @@ export default async function OnboardingPage() {
         </div>
         <ProfileEditor mode="wizard" suggestions={suggestions} />
       </main>
-    </PageShell>
+    </div>
   );
 }

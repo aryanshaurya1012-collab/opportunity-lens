@@ -29,7 +29,7 @@ export default async function OpportunityPage({ params }: PageProps) {
   if (!opportunity) notFound();
 
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <div className="container-page py-10 md:py-14">
         <OpportunityDetail opportunity={opportunity} backHref="/opportunities" backLabel="All opportunities" />
       </div>

@@ -15,7 +15,7 @@ export default async function AiAnalysisPage() {
   const opportunities = await getOpportunityRepository().listPublished();
 
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <PageContainer>
         <PageHeader
           eyebrow="Generative AI & Strategy"

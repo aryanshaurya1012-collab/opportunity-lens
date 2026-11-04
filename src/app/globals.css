@@ -170,7 +170,7 @@ html {
 body {
   @apply bg-background text-foreground;
   font-feature-settings: "ss01", "cv11";
-  overflow-x: hidden;
+  min-height: 100svh;
 }
 
 * {

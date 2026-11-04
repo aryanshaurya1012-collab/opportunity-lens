@@ -11,7 +11,7 @@ export default async function AppOpportunitiesPage() {
   const opportunities = await getOpportunityRepository().listPublished();
 
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <PageContainer>
         <PageHeader
           eyebrow="Discover"

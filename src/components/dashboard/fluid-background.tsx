@@ -61,9 +61,10 @@ export function FluidBackground() {
     accentLight2.position.set(-2, -2, 3);
     scene.add(accentLight2);
 
-    // Fluid-like line geometry
-    const pointCount = 200;
-    const lineCount = 18;
+    // Responsive line & point density (optimized for mobile)
+    const isMobile = width < 768;
+    const pointCount = isMobile ? 90 : 150;
+    const lineCount = isMobile ? 8 : 13;
     const lineGroups: THREE.Line[] = [];
 
     for (let l = 0; l < lineCount; l++) {
@@ -89,7 +90,7 @@ export function FluidBackground() {
           ? (l % 2 === 0 ? 0x2dd4bf : 0x22d3ee)
           : (l % 2 === 0 ? 0x0d9488 : 0x0284c7),
         transparent: true,
-        opacity: isDark ? 0.22 + (l / lineCount) * 0.12 : 0.18 + (l / lineCount) * 0.08,
+        opacity: isDark ? 0.12 + (l / lineCount) * 0.08 : 0.08 + (l / lineCount) * 0.06,
       });
       const line = new THREE.Line(geometry, material);
       const userData: LineUserData = { velocities, phases };

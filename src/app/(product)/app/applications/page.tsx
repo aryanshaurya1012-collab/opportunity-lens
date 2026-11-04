@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Applications" };
 export default async function ApplicationsPage() {
   const opportunities = await getOpportunityRepository().listPublished();
   return (
-    <PageShell background="space">
+    <PageShell background="none">
       <PageContainer>
         <PageHeader
           eyebrow="Applications"

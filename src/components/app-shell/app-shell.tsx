@@ -27,6 +27,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           <Link
             key={href}
             href={href}
+            prefetch={true}
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cn(
